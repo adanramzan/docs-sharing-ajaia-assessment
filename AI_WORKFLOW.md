@@ -26,4 +26,4 @@
 - `tests/docs.test.ts` (vitest, 6 tests) runs the real SQL against in-memory Postgres: non-shared users can't read/edit, viewers can't edit or reshare, editors' formatted edits persist, unknown emails and self-share are rejected, revoking removes access, import escapes HTML and rejects bad files.
 - `tsc`, `eslint`, and `next build` clean.
 - Manual + agent-driven browser pass of every core flow in the production build, including the owner/viewer views with two accounts.
-- I reviewed every generated file before committing; the code is small enough (~600 lines) to read end to end.
+- I reviewed every generated file before committing; the code is small enough (~750 lines including tests) to read end to end.
