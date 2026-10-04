@@ -62,4 +62,4 @@ src/app/docs/[id]/   Editor (Tiptap), sharing panel
 tests/docs.test.ts   Automated tests
 ```
 
-See `ARCHITECTURE.md` and `AI_WORKFLOW.md` for decisions and process.
+See `PLAN.md` (kickoff plan and what changed), `ARCHITECTURE.md` (decisions) and `AI_WORKFLOW.md` (process).

@@ -21,6 +21,7 @@
 | `src/` | Next.js 16 app: UI, server actions, data layer (`src/lib/`) |
 | `tests/docs.test.ts` | 6 automated tests: access control, sharing roles, file import |
 | `README.md` | Local setup, run, test, deploy instructions |
+| `PLAN.md` | Build plan from kickoff: scope, stack, data/access model, milestones, plan vs. actual |
 | `ARCHITECTURE.md` | Architecture note: priorities, decisions, tradeoffs, next steps |
 | `AI_WORKFLOW.md` | AI workflow note: tools, speed-ups, what was changed/rejected, verification |
 | `SUBMISSION.md` | This file |
