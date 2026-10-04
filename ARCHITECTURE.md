@@ -8,14 +8,14 @@ One Next.js 16 app (App Router) deployed on Vercel: React UI, server actions as 
 Browser (Tiptap editor, forms)
    │  server actions (zod validation)
    ▼
-src/app/actions.ts ──► src/lib/docs.ts (access rules + SQL) ──► src/lib/db.ts ──► Postgres (Neon) | PGlite (local/tests)
+src/app/actions.ts ──► src/lib/docs.ts (access rules + SQL) ──► src/lib/db.ts ──► Postgres (Neon)
 ```
 
 ## What I prioritized and why
 
 1. **Correct access control over feature count.** Every read/write goes through `lib/docs.ts`, which takes the acting user and checks role (`owner` / `editor` / `viewer`) in the same SQL that fetches the doc. Pages and actions can't skip a check because there is no other path to the data. This is the area most likely to be subtly wrong, so it's also what the tests cover.
 2. **A usable editor, not a custom one.** Tiptap (ProseMirror) gives a solid editing core, keyboard shortcuts, and a schema. I spent time on the parts users feel: toolbar active states, debounced autosave with visible status, retry-on-failure, flush on tab close.
-3. **Zero-setup local run + free deploy.** Without `DATABASE_URL` the app uses PGlite (real Postgres in WASM), so `npm install && npm run dev` works with no database setup, and tests run against the same SQL as production.
+3. **One database everywhere.** Local dev, tests, and production all use the same Postgres (Neon, free via Vercel). No second engine to keep in sync, so what's tested is what runs. Schema and seed users are created on first connection, so there's no migration step.
 4. **File import that produces a real document.** `.txt`/`.md`/`.docx` become new editable docs (mammoth for docx, marked for md). That makes import useful, not just an attachment.
 
 ## Key decisions

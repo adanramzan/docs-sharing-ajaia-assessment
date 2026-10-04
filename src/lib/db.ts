@@ -1,6 +1,6 @@
-// One tiny query function over two backends:
-// - Postgres (Neon via Vercel) when DATABASE_URL / POSTGRES_URL is set (production)
-// - Embedded PGlite (real Postgres compiled to WASM) otherwise, so local dev and tests need zero setup.
+// Single Postgres database (Neon, provisioned via Vercel) used by local dev, tests, and production.
+import { Pool } from "pg";
+
 type Row = Record<string, unknown>;
 export type Query = <T = Row>(sql: string, params?: unknown[]) => Promise<T[]>;
 
@@ -34,18 +34,9 @@ export const SEED_USERS = [
 
 async function connect(): Promise<Query> {
   const url = process.env.DATABASE_URL ?? process.env.POSTGRES_URL;
-  let query: Query;
-  if (url) {
-    const { Pool } = await import("pg");
-    const pool = new Pool({ connectionString: url, max: 3 });
-    query = async (sql, params = []) => (await pool.query(sql, params)).rows;
-  } else {
-    const { PGlite } = await import("@electric-sql/pglite");
-    const dir = process.env.PGLITE_DIR ?? "./.data/pglite";
-    if (!dir.includes("://")) (await import("node:fs")).mkdirSync(dir, { recursive: true });
-    const db = new PGlite(dir);
-    query = async <T,>(sql: string, params: unknown[] = []) => (await db.query<T>(sql, params)).rows;
-  }
+  if (!url) throw new Error("DATABASE_URL is not set. Copy it from Vercel → Storage into .env.local.");
+  const pool = new Pool({ connectionString: url, max: 3 });
+  const query: Query = async (sql, params = []) => (await pool.query(sql, params)).rows;
   for (const stmt of SCHEMA) await query(stmt);
   for (const u of SEED_USERS) {
     await query(`INSERT INTO users (id, name, email) VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING`, [
@@ -57,7 +48,7 @@ async function connect(): Promise<Query> {
   return query;
 }
 
-// Cache on globalThis so dev hot-reloads don't open a second PGlite on the same directory.
+// Cache on globalThis so dev hot-reloads reuse one pool and run schema setup once.
 const g = globalThis as unknown as { __db?: Promise<Query> };
 
 export const sql: Query = async (text, params) => {

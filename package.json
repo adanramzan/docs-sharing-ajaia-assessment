@@ -10,7 +10,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.5.8",
     "@tiptap/html": "^3.31.4",
     "@tiptap/pm": "^3.31.4",
     "@tiptap/react": "^3.31.4",

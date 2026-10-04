@@ -26,21 +26,22 @@ Auth is mocked: pick a seeded account on the login screen. Use **Switch user** (
 
 ## Run locally
 
-Requires Node 20+.
+Requires Node 20+ and a Postgres connection string (the same Neon database used by the deployment, or any free Neon/Postgres instance).
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+cp .env.example .env.local   # paste DATABASE_URL (Vercel → Storage → your DB → .env.local tab)
+npm run dev                  # http://localhost:3000
 ```
 
-No database setup needed: without `DATABASE_URL`, the app uses an embedded Postgres (PGlite) stored in `./.data/`. Tables and seeded users are created automatically on first request.
-
-To use a real Postgres instead, set `DATABASE_URL` (e.g. in `.env.local`).
+Tables and seeded users are created automatically on the first request.
 
 ```bash
-npm test           # vitest: sharing/access rules + file import, against in-memory Postgres
+npm test           # vitest: sharing/access rules + file import, against the Postgres in DATABASE_URL
 npm run build && npm start
 ```
+
+Tests create a `[test]` document as Alice and delete it when they finish.
 
 ## Deploy (Vercel)
 
@@ -51,7 +52,7 @@ npm run build && npm start
 ## Project layout
 
 ```
-src/lib/db.ts        Postgres/PGlite connection, schema, seed users
+src/lib/db.ts        Postgres connection, schema, seed users
 src/lib/docs.ts      Document + sharing logic; all access checks live here
 src/lib/import.ts    .txt/.md/.docx → HTML
 src/lib/auth.ts      Mocked cookie auth

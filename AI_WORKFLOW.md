@@ -14,16 +14,16 @@
 
 ## What I changed or rejected
 
-- **Rejected SQLite on Vercel.** The first instinct was SQLite; Vercel's filesystem is ephemeral, so data would vanish. Chose Postgres in prod + PGlite locally so the same SQL runs everywhere.
+- **Rejected SQLite on Vercel.** The first instinct was SQLite; Vercel's filesystem is ephemeral, so data would vanish. Chose a single Postgres (Neon via Vercel) for local, tests, and production.
 - **Rejected a REST API layer** in favor of server actions: less code for the same behavior.
 - **Moved access checks** into one module (`lib/docs.ts`) instead of per-page checks, so they can't be forgotten.
 - **Fixed a dependency conflict properly** (aligned `@types/node` with vitest's peer range) instead of shipping `--legacy-peer-deps`, which would break the Vercel install.
-- **Caught a bug in testing:** the embedded DB failed on a fresh checkout because PGlite doesn't create parent directories. Found via the browser walkthrough + server log; fixed with a recursive `mkdir`.
+- **Simplified the data layer.** The AI's first version used an embedded Postgres (PGlite) locally and Neon in production for zero-setup local runs. I rejected two databases and kept one Postgres for every environment: a single source of truth and nothing environment-specific to break. (The embedded DB had already caused a crash on a fresh checkout, caught in browser testing.)
 - **Removed a client import of server code:** the share panel imported the seed list from `db.ts`, which would have pulled the Postgres driver into the browser bundle; the list is passed as a prop instead.
 
 ## How I verified correctness, UX, and reliability
 
-- `tests/docs.test.ts` (vitest, 6 tests) runs the real SQL against in-memory Postgres: non-shared users can't read/edit, viewers can't edit or reshare, editors' formatted edits persist, unknown emails and self-share are rejected, revoking removes access, import escapes HTML and rejects bad files.
+- `tests/docs.test.ts` (vitest, 6 tests) runs the real SQL against the app's Postgres: non-shared users can't read/edit, viewers can't edit or reshare, editors' formatted edits persist, unknown emails and self-share are rejected, revoking removes access, import escapes HTML and rejects bad files.
 - `tsc`, `eslint`, and `next build` clean.
 - Manual + agent-driven browser pass of every core flow in the production build, including the owner/viewer views with two accounts.
 - I reviewed every generated file before committing; the code is small enough (~750 lines including tests) to read end to end.

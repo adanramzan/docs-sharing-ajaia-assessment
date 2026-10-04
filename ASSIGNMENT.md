@@ -19,23 +19,23 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 | 3.2 | Grant another user access | Share panel, by email, viewer/editor role | ✅ built |
 | 3.3 | Owned vs shared distinction | "My documents" / "Shared with me" sections | ✅ built |
 | 3.4 | Users | 3 seeded accounts + "log in as" picker (mocked auth) | ✅ built |
-| 4 | Persistence | Postgres (Neon via Vercel) in prod; embedded PGlite locally | ✅ built |
+| 4 | Persistence | One Postgres (Neon via Vercel), used locally and in prod | ✅ built |
 
 ## 2. Engineering quality
 
 | Requirement | Plan | Status |
 |---|---|---|
-| Setup & run instructions | `README.md` | ⬜ todo |
+| Setup & run instructions | `README.md` | ✅ done |
 | Live deployment | Vercel + Vercel Postgres (you handle) | ⬜ todo |
 | Validation & error handling | zod on server actions, role checks in `lib/docs.ts`, UI error messages | ✅ built |
-| ≥1 meaningful automated test | `tests/docs.test.ts` — sharing/roles/import against real Postgres (PGlite) | ✅ 6 passing |
-| Architecture note | `ARCHITECTURE.md` | ⬜ todo |
+| ≥1 meaningful automated test | `tests/docs.test.ts` — sharing/roles/import against the real Postgres | ✅ 6 passing |
+| Architecture note | `ARCHITECTURE.md` | ✅ done |
 
 ## 3. Written deliverables
 
-- [ ] `README.md` — local setup, run, test, seeded users, supported file types
-- [ ] `ARCHITECTURE.md` — what was prioritized and why, scope cuts
-- [ ] `AI_WORKFLOW.md` — tools used, where AI sped things up, what was changed/rejected, how verified
+- [x] `README.md` — local setup, run, test, seeded users, supported file types
+- [x] `ARCHITECTURE.md` — what was prioritized and why, scope cuts
+- [x] `AI_WORKFLOW.md` — tools used, where AI sped things up, what was changed/rejected, how verified
 - [ ] `SUBMISSION.md` — exact list of what's included, live URL, test accounts, what works / incomplete / next 2–4 hours
 - [ ] `VIDEO_URL.txt` — walkthrough link
 - [ ] Screenshots (optional; only if setup needs extra steps)
@@ -46,12 +46,12 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 2. Import a `.md`/`.docx` file
 3. Share with Bob as viewer → switch to Bob → "Shared with me", read-only → upgrade to editor
 4. What was deprioritized (real-time co-editing, real auth, comments, version history)
-5. Key decisions (Tiptap, server actions, access checks in one module, PGlite/Postgres)
+5. Key decisions (Tiptap, server actions, access checks in one module, single Postgres)
 6. How AI was used
 
 ## 5. Submission
 
-- [ ] Push code to GitHub: `adanramzan/docs-sharing-ajaia-assessment`
+- [x] Push code to GitHub: `adanramzan/docs-sharing-ajaia-assessment`
 - [ ] Deploy on Vercel, add Postgres from Storage tab (you)
 - [ ] Google Drive folder with all materials
 - [ ] Paste video link + submission Markdown into the form, then submit

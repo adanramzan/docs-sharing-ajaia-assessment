@@ -1,20 +1,21 @@
-// Exercises the real SQL against an in-memory PGlite Postgres: ownership, sharing, roles, import.
-import { beforeAll, describe, expect, it } from "vitest";
-
-process.env.PGLITE_DIR = "memory://";
-delete process.env.DATABASE_URL;
-delete process.env.POSTGRES_URL;
-const docs = await import("../src/lib/docs");
-const { fileToHtml } = await import("../src/lib/import");
+// Exercises the real SQL against the app's Postgres (DATABASE_URL from .env.local):
+// ownership, sharing, roles, import. Creates its own document and deletes it afterwards.
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import * as docs from "../src/lib/docs";
+import { fileToHtml } from "../src/lib/import";
 
 describe("sharing & access control", () => {
   let id: string;
   beforeAll(async () => {
-    id = await docs.createDoc("alice", "Plan", "<p>secret</p>");
+    id = await docs.createDoc("alice", "[test] Plan", "<p>secret</p>");
+  });
+  afterAll(async () => {
+    await docs.deleteDoc("alice", id);
   });
 
   it("owner sees the doc under owned; others can't see or edit it", async () => {
     expect((await docs.listDocs("alice")).owned.map((d) => d.id)).toContain(id);
+    expect((await docs.listDocs("bob")).shared.map((d) => d.id)).not.toContain(id);
     expect(await docs.getDoc("bob", id)).toBeNull();
     await expect(docs.updateDoc("bob", id, { content: "<p>hacked</p>" })).rejects.toThrow(/not found/);
   });
@@ -22,8 +23,8 @@ describe("sharing & access control", () => {
   it("viewer can read but not edit or reshare", async () => {
     await docs.shareDoc("alice", id, "BOB@ajaia.test", "viewer");
     const { shared, owned } = await docs.listDocs("bob");
-    expect(owned).toHaveLength(0);
-    expect(shared).toMatchObject([{ id, role: "viewer", owner_name: "Alice Chen" }]);
+    expect(owned.map((d) => d.id)).not.toContain(id);
+    expect(shared.find((d) => d.id === id)).toMatchObject({ role: "viewer", owner_name: "Alice Chen" });
     await expect(docs.updateDoc("bob", id, { title: "x" })).rejects.toThrow(/viewer/);
     await expect(docs.shareDoc("bob", id, "carol@ajaia.test", "editor")).rejects.toThrow(/viewer/);
   });
