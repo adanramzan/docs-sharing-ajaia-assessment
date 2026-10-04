@@ -2,7 +2,8 @@
 
 **Live app:** https://docs-sharing-ajaia-assessment.vercel.app
 **Source:** https://github.com/adanramzan/docs-sharing-ajaia-assessment
-**Video walkthrough:** see `VIDEO_URL.txt`
+**Video walkthrough:** https://www.loom.com/share/403413dfd5594201928522a43ef254be
+**Google Drive (all materials):** https://drive.google.com/drive/folders/1WJxcz0_qt_lvCL20Kb78w7UVtOvENQ2D?usp=sharing
 
 ## Test accounts
 

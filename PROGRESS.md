@@ -16,7 +16,7 @@
 | — | Impeccable critique + fixes | ✅ Done | tsc, eslint, tests; browser | Critique in `.impeccable/critique/`; P1 fixes applied |
 | — | Sign-up (email + password) | ✅ Done | 10/10 tests (`tests/users.test.ts`), tsc, eslint, build; browser: sign up, wrong password, duplicate email (any case), sign in | Scrypt hashing, no password reset yet. Seeded demo users remain one-click. 375px not re-checked (macOS min window width) |
 | — | Import fidelity: tables, task lists, links, images, H4–H6 | ✅ Done | Unit test with `tests/fixtures/all-formatting.md`; browser import of the fixture and `PLAN.md` | Found by user: Markdown tables were flattened into one paragraph. Added Tiptap table/task-list/image extensions, re-enabled links |
-| 7 | Walkthrough video | ⏳ Pending | — | |
+| 7 | Walkthrough video | ✅ Done | — | https://www.loom.com/share/403413dfd5594201928522a43ef254be |
 | — | Sign out on every page; clearer *Shared with me* labels | ✅ Done | Browser | Found by user testing: label read "Carol Diaz · editor"; now "Owner: Carol Diaz" + "Can edit" |
 | — | Live-site click-through | ✅ Done | Browser on the Vercel URL | Demo login, dashboard, shared doc with tables, editor role, sign out. Password test accounts confirmed in the database |
 | — | Stretch: export to Markdown + PDF | ✅ Done | tsc, eslint, 11/11 tests, build; browser: `.md` output of `PLAN.md` (headings, quote, bold, tables) | Built by one subagent after finalizing. PDF print preview not checked by the agent (the print dialog blocks browser automation) |

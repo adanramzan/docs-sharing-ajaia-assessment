@@ -39,7 +39,7 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 - [x] `PLAN.md` — kickoff plan, plan vs. actual
 - [x] `PROGRESS.md` — milestone status and test log
 - [x] `SUBMISSION.md` — exact list of what's included, live URL, test accounts, what works / incomplete / next 2–4 hours
-- [ ] `VIDEO_URL.txt` — walkthrough link (placeholder in repo)
+- [x] `VIDEO_URL.txt` — walkthrough link
 - [ ] Screenshots (optional; only if setup needs extra steps)
 
 ## 4. Walkthrough video (3–5 min, unlisted Loom/YouTube)
@@ -56,7 +56,7 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 
 - [x] Push code to GitHub: `adanramzan/docs-sharing-ajaia-assessment`
 - [x] Deploy on Vercel, add Neon Postgres from Storage tab
-- [ ] Google Drive folder with all materials
+- [x] Google Drive folder with all materials: https://drive.google.com/drive/folders/1WJxcz0_qt_lvCL20Kb78w7UVtOvENQ2D?usp=sharing
 - [ ] Paste video link + submission Markdown into the form, then submit
 
 ## 6. Optional stretch (only if core is done)
