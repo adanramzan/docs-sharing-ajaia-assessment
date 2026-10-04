@@ -26,9 +26,9 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 | Requirement | Plan | Status |
 |---|---|---|
 | Setup & run instructions | `README.md` | ✅ done |
-| Live deployment | Vercel + Vercel Postgres (you handle) | ⬜ todo |
+| Live deployment | Vercel + Neon Postgres | ⏳ deployed, verify live |
 | Validation & error handling | zod on server actions, role checks in `lib/docs.ts`, UI error messages | ✅ built |
-| ≥1 meaningful automated test | `tests/docs.test.ts` — sharing/roles/import against the real Postgres | ✅ 6 passing |
+| ≥1 meaningful automated test | `tests/docs.test.ts` — sharing/roles/import against the real Postgres | ✅ 6 passing against Neon |
 | Architecture note | `ARCHITECTURE.md` | ✅ done |
 
 ## 3. Written deliverables
@@ -36,7 +36,7 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 - [x] `README.md` — local setup, run, test, seeded users, supported file types
 - [x] `ARCHITECTURE.md` — what was prioritized and why, scope cuts
 - [x] `AI_WORKFLOW.md` — tools used, where AI sped things up, what was changed/rejected, how verified
-- [ ] `SUBMISSION.md` — exact list of what's included, live URL, test accounts, what works / incomplete / next 2–4 hours
+- [x] `SUBMISSION.md` — exact list of what's included, live URL, test accounts, what works / incomplete / next 2–4 hours
 - [ ] `VIDEO_URL.txt` — walkthrough link
 - [ ] Screenshots (optional; only if setup needs extra steps)
 
