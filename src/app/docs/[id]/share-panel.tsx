@@ -2,6 +2,7 @@
 import { useActionState } from "react";
 import type { Share } from "@/lib/docs";
 import { deleteDocument, shareDocument, unshareDocument } from "../../actions";
+import { SubmitButton } from "../../submit-button";
 import { btnPrimary, input, linkDanger, RolePill } from "../../ui";
 
 const row = "flex items-center justify-between gap-2 border-b border-divider py-2";
@@ -86,7 +87,9 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
           onSubmit={(e) => !confirm("Delete this document for everyone?") && e.preventDefault()}
           className="border-t-2 border-divider pt-4"
         >
-          <button className={linkDanger}>Delete document</button>
+          <SubmitButton className={linkDanger} pendingText="Deleting…">
+            Delete document
+          </SubmitButton>
         </form>
       )}
     </aside>

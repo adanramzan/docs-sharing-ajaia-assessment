@@ -3,6 +3,7 @@ import { currentUser } from "@/lib/auth";
 import { SEED_USERS } from "@/lib/db";
 import { listDocs, type DocSummary } from "@/lib/docs";
 import { createDocument, login, logout } from "./actions";
+import { SubmitButton } from "./submit-button";
 import { UploadForm } from "./upload-form";
 import { btnPrimary, btnSecondary, RolePill } from "./ui";
 
@@ -21,13 +22,15 @@ export default async function Home() {
           <span>
             {user.name} <span className="text-neutral-700">({user.email})</span>
           </span>
-          <button className={btnSecondary}>Switch user</button>
+          <SubmitButton className={btnSecondary}>Switch user</SubmitButton>
         </form>
       </header>
 
       <section className="mb-8 flex flex-wrap items-start gap-4 sm:mb-10 sm:gap-6">
         <form action={createDocument}>
-          <button className={btnPrimary}>+ New document</button>
+          <SubmitButton className={btnPrimary} pendingText="Creating…">
+            + New document
+          </SubmitButton>
         </form>
         <UploadForm />
       </section>
@@ -78,10 +81,10 @@ function Login() {
         {SEED_USERS.map((u) => (
           <form key={u.id} action={login}>
             <input type="hidden" name="userId" value={u.id} />
-            <button className="block w-full cursor-pointer border-b border-divider px-3 py-3.5 text-left hover:bg-text/7 focus-visible:outline-offset-[-2px] active:bg-text/14 active:shadow-[inset_3px_0_0_var(--color-accent-700)]">
+            <SubmitButton className="block w-full cursor-pointer border-b border-divider px-3 py-3.5 disabled:cursor-wait disabled:opacity-60 text-left hover:bg-text/7 focus-visible:outline-offset-[-2px] active:bg-text/14 active:shadow-[inset_3px_0_0_var(--color-accent-700)]">
               <span className="text-[15px] font-semibold">{u.name}</span>
               <span className="block text-xs text-neutral-700">{u.email}</span>
-            </button>
+            </SubmitButton>
           </form>
         ))}
       </div>
