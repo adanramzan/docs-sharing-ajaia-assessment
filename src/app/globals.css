@@ -131,3 +131,26 @@ h1, h2, h3 { font-weight: 800; letter-spacing: -0.015em; line-height: 1.12; }
 .tiptap th, .tiptap td { border: 1px solid var(--color-divider); padding: 0.4em 0.7em; vertical-align: top; text-align: left; min-width: 6em; }
 .tiptap th { font-family: var(--font-sans); font-weight: 700; background: var(--color-neutral-200); }
 .tiptap td > p, .tiptap th > p { margin: 0; }
+
+/* Print / Export PDF: only the title and the sheet, set as a clean A4/Letter document. */
+@media print {
+  /* Margins live on the content, not @page, so they survive "Margins: None" in the print dialog.
+     margin: 0 also leaves no room for the browser's date/URL header and footer. clone repeats the padding on every page. */
+  @page { margin: 0; }
+  .print-area { padding: 16mm 18mm; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+  /* Drop everything outside the print area (display, not visibility, so it leaves no blank pages). */
+  body *:not(:has(.print-area), .print-area, .print-area *), .no-print, [data-no-print], nextjs-portal { display: none !important; }
+  body, body :has(.print-area) { display: block; margin: 0; padding: 0; max-width: none; background: none; }
+  .print-title { margin-bottom: 14pt; font-size: 24pt; line-height: 1.15; padding-bottom: 8pt; border-bottom: 1.5pt solid var(--color-text); }
+  .sheet-in { animation: none; box-shadow: none; background: none; }
+  .tiptap { padding: 0; min-height: 0; font-size: 10.5pt; line-height: 1.5; }
+  .tiptap h1 { font-size: 18pt; }
+  .tiptap h2 { font-size: 14pt; }
+  .tiptap h3 { font-size: 12pt; }
+  .tiptap :is(tr, img, pre, blockquote, li) { break-inside: avoid; }
+  .tiptap :is(h1, h2, h3, h4, h5, h6, tr:first-child) { break-after: avoid; }
+  .tiptap :is(p, li) { orphans: 3; widows: 3; }
+  .tiptap table { display: table; width: 100%; overflow: visible; font-size: 9pt; }
+  .tiptap :is(th, td) { min-width: 0; border-color: #999; }
+  .tiptap :is(th, pre, code) { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

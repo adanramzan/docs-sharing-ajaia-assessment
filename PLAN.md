@@ -76,7 +76,7 @@ shares(doc_id → documents, user_id → users, role 'viewer'|'editor')   PK(doc
 | Risk | Mitigation |
 |---|---|
 | Next.js 16 breaking changes vs. older patterns | Read the bundled v16 upgrade guide before writing code |
-| Concurrent edits overwrite each other | Accept last-write-wins for scope; document it; next step is optimistic concurrency |
+| Concurrent edits overwrite each other | Mitigated with version-checked saves: second writer sees a reload prompt; presence shows active users so they know someone else has the doc open. |
 | Upload size limits on Vercel (4.5MB body) | Cap uploads at 4MB, set the server action body limit, state it in the UI |
 | Rendering imported HTML (XSS) | Only ever render through Tiptap's schema; escape `.txt` input |
 | Running out of time | Core first; stretch only after deploy + docs are done |
@@ -94,5 +94,7 @@ shares(doc_id → documents, user_id → users, role 'viewer'|'editor')   PK(doc
 | **Added an Impeccable critique pass** after deploy | Structured review (25/40, three P1s) caught issues the walkthrough didn't: overloaded red, focus ring on the editor, share form losing input on error |
 | **Added pending states** to action buttons | Found in browser testing: with database latency, a double-click could create two documents |
 | Fixed a dependency conflict properly (aligned `@types/node`) instead of `--legacy-peer-deps` | Would otherwise risk the Vercel install |
-| Export to Markdown (stretch) | Not done; core, deploy and docs took priority |
+| **Export to Markdown + PDF** (stretch) done after the project was finalized | Small and isolated: official `@tiptap/markdown` serializer for `.md`; the browser's print-to-PDF with a print stylesheet, no PDF library |
+| **Made import keep tables, task lists, links and images** | Found by importing this plan: tables were silently flattened because the editor schema lacked them |
 | **Added email + password sign-up** after core, tests, deploy, and docs were done | User request; kept small with stdlib scrypt and the same session cookie. Seeded one-click logins still work. |
+| **Added presence + save conflict check** (stretch) | Replaced last-write-wins, the planned "next step". A 10s heartbeat shows who else has the doc open; a version number on each save rejects stale writes with a Reload prompt instead of overwriting. Polling and a version check, not websockets/CRDT, to stay small. Tests added for both |

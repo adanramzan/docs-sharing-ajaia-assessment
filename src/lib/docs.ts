@@ -7,10 +7,12 @@ export type Role = "owner" | "editor" | "viewer";
 export type ShareRole = Exclude<Role, "owner">;
 
 export type DocSummary = { id: string; title: string; updated_at: Date; owner_name: string; role: Role };
-export type Doc = DocSummary & { content: string; owner_id: string };
+export type Doc = DocSummary & { content: string; owner_id: string; version: number };
 export type Share = { user_id: string; name: string; email: string; role: ShareRole };
 
 export class AppError extends Error {}
+export class ConflictError extends AppError {}
+export type Presence = { viewers: { id: string; name: string }[]; version: number };
 
 export async function listDocs(userId: string) {
   const rows = await sql<DocSummary>(
@@ -29,7 +31,7 @@ export async function listDocs(userId: string) {
 /** Returns the doc with the caller's role, or null if it doesn't exist or they have no access. */
 export async function getDoc(userId: string, docId: string): Promise<Doc | null> {
   const [row] = await sql<Doc>(
-    `SELECT d.id, d.title, d.content, d.owner_id, d.updated_at, u.name AS owner_name,
+    `SELECT d.id, d.title, d.content, d.owner_id, d.version, d.updated_at, u.name AS owner_name,
             CASE WHEN d.owner_id = $1 THEN 'owner' ELSE s.role END AS role
        FROM documents d
        JOIN users u ON u.id = d.owner_id
@@ -53,12 +55,30 @@ export async function createDoc(userId: string, title: string, content = "") {
   return id;
 }
 
-export async function updateDoc(userId: string, docId: string, patch: { title?: string; content?: string }) {
+export async function updateDoc(userId: string, docId: string, patch: { title?: string; content?: string }, baseVersion: number) {
   await requireRole(userId, docId, ["owner", "editor"]);
-  await sql(
-    `UPDATE documents SET title = COALESCE($2, title), content = COALESCE($3, content), updated_at = now() WHERE id = $1`,
-    [docId, patch.title ?? null, patch.content ?? null],
+  const [row] = await sql<{ version: number }>(
+    `UPDATE documents SET title = COALESCE($2, title), content = COALESCE($3, content), updated_at = now(), version = version + 1
+      WHERE id = $1 AND version = $4 RETURNING version`,
+    [docId, patch.title ?? null, patch.content ?? null, baseVersion],
   );
+  if (!row) throw new ConflictError("Someone else saved a newer version. Reload to see it — your unsaved changes here will be lost.");
+  return row.version;
+}
+
+// ponytail: polling presence (10s beat, 30s expiry); stale rows are never deleted, add a cleanup or move to websockets (Liveblocks/Pusher) at scale.
+export async function heartbeat(userId: string, docId: string): Promise<Presence> {
+  const doc = await requireRole(userId, docId, ["owner", "editor", "viewer"]);
+  await sql(
+    `INSERT INTO presence (doc_id, user_id) VALUES ($1, $2) ON CONFLICT (doc_id, user_id) DO UPDATE SET seen_at = now()`,
+    [docId, userId],
+  );
+  const viewers = await sql<{ id: string; name: string }>(
+    `SELECT u.id, u.name FROM presence p JOIN users u ON u.id = p.user_id
+      WHERE p.doc_id = $1 AND p.user_id <> $2 AND p.seen_at > now() - interval '30 seconds' ORDER BY u.name`,
+    [docId, userId],
+  );
+  return { viewers, version: doc.version };
 }
 
 export async function deleteDoc(userId: string, docId: string) {

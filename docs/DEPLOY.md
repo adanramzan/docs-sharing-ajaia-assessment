@@ -11,7 +11,7 @@ Project → **Storage → Create Database → Neon (Serverless Postgres)**.
 | Setting | Value | Why |
 |---|---|---|
 | Region | Washington, D.C. (US East) | Close to Vercel's default function region |
-| Auth | **Off** | The app uses mocked auth; Neon Auth isn't needed |
+| Auth | **Off** | The app has its own simple auth (users table); Neon Auth isn't needed |
 | Plan | Free | |
 | Environments | Production, Preview, Development | Same DB everywhere (one database by design) |
 | Create database branch for deployment | **Unchecked** (both) | Branches would create separate copies of the data |

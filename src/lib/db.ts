@@ -25,6 +25,14 @@ const SCHEMA = [
      PRIMARY KEY (doc_id, user_id)
    )`,
   `ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT`,
+  // int version, not updated_at: JS Date drops Postgres microseconds so timestamp equality would never match
+  `ALTER TABLE documents ADD COLUMN IF NOT EXISTS version INT NOT NULL DEFAULT 0`,
+  `CREATE TABLE IF NOT EXISTS presence (
+     doc_id TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+     user_id TEXT NOT NULL REFERENCES users(id),
+     seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+     PRIMARY KEY (doc_id, user_id)
+   )`,
 ];
 
 export const SEED_USERS = [

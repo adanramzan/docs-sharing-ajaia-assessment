@@ -21,7 +21,7 @@ Calm, focused writing plus simple role-based sharing. It deliberately does less 
 
 ## Operating Context
 
-- Mocked auth: a login picker with three seeded accounts (Alice Chen, Bob Patel, Carol Diaz, all `@ajaia.test`) plus email + password sign-up, and a "Sign out" control for switching accounts to demonstrate sharing.
+- Demo-grade auth: a login picker with three seeded accounts (Alice Chen, Bob Patel, Carol Diaz, all `@ajaia.test`) plus email + password sign-up, and a "Sign out" control for switching accounts to demonstrate sharing.
 - The dashboard separates "My documents" from "Shared with me". The document page has an inline title, debounced autosave with a status indicator, a formatting toolbar, and a Sharing panel.
 - Roles: owner (full control, can share and delete), editor (edits, sharing is read-only), viewer (read-only, no toolbar).
 - A "Document not available" page appears for both missing docs and docs the user can't access, and it deliberately doesn't reveal which.
@@ -30,8 +30,8 @@ Calm, focused writing plus simple role-based sharing. It deliberately does less 
 
 - Stack: Next.js 16 (App Router, server actions), React 19, Tiptap 3, Tailwind 4, Postgres (Neon via Vercel), zod, vitest.
 - Formatting: bold, italic, underline, H1–H3, bulleted and numbered lists, undo/redo.
-- Import: .txt, .md and .docx up to 4MB. Other types are rejected with a clear message.
-- Concurrent edits are last-write-wins.
+- Import: .txt, .md and .docx up to 4MB, keeping tables, task lists, links and images. Other types are rejected with a clear message.
+- Presence: while a doc is open, a heartbeat shows other active users (initials in the title row). Conflicting saves are rejected with a reload prompt; edits aren't merged.
 - **Binding design constraints:** light theme only; warm neutral grays with one red accent (#ec3013; #ae1800 for text-safe contrast); system font stack or at most one Google Font; WCAG AA contrast with visible focus states on every control; works at ~375px (the share panel stacks under the editor below `lg`); no new features; layout may change (editorial: masthead, paper sheet, serif writing surface) but copy stays and no features are added; inline messages, no toasts.
 - Out of scope: real-time co-editing, real auth, comments/suggestions, version history.
 
@@ -44,7 +44,7 @@ Calm, focused writing plus simple role-based sharing. It deliberately does less 
 ## Evidence on Hand
 
 - `README.md`, `ARCHITECTURE.md`, `AI_WORKFLOW.md`, `ASSIGNMENT.md`, `SCREENS.md` (the screen-by-screen state brief).
-- Automated tests in `tests/docs.test.ts` (sharing, roles, import).
+- Automated tests in `tests/docs.test.ts` (sharing, roles, import, save conflicts, presence) and `tests/users.test.ts` (sign-up).
 - No users, testimonials or metrics exist; never fabricate them.
 
 ## Product Principles

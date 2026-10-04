@@ -27,6 +27,9 @@ Brief ──► Claude: stack + plan ──► PLAN.md / ASSIGNMENT.md
 5. **Deploy.** GitHub → Vercel, Neon Postgres connected through the Vercel Storage tab (`docs/DEPLOY.md`).
 6. **Refine UI.** Ran the Impeccable design skill for a structured critique (scored 25/40, three P1 issues; saved in `.impeccable/critique/`), then fixed the issues it found.
 7. **Add sign-up** (post-core). Fanned out parallel subagents with models matched to the work: Sonnet for backend (scrypt auth, password validation) and UI (sign-up form, login flow), Haiku for documentation updates, Opus (main session) for integration and browser verification. Kept the change small: stdlib `scrypt`, same `httpOnly` session cookie, no new auth library.
+8. **Test as a user, fix what breaks.** Hands-on testing after deploy found real gaps, each fixed with a test or browser check: Markdown tables were flattened on import, "Shared with me" labels read as if the owner were the editor, and there was no sign-out on the editor page.
+9. **Stretch: export.** One Sonnet subagent built Markdown + PDF export; I reviewed it, fixed the toolbar showing in print, moved the buttons from the bottom of long documents to the title row, and verified the Markdown output in the browser.
+10. **Stretch: presence + save conflict check** (test-first). Planned with a fixed interface contract. Fanned out a Sonnet backend agent (version check on save, heartbeat, tests written first) and a Sonnet UI agent (presence chips, Reload prompt) in parallel, then Haiku for docs. I reviewed both diffs, ran the gates, and verified in the browser by simulating a second user via SQL. The automation tab reports itself as hidden, which pauses the heartbeat by design, so I overrode visibility to exercise it. Corrected two overclaims in the generated docs and tightened the status row so status, presence and buttons align on one line.
 
 ## Tools
 
@@ -55,12 +58,14 @@ Brief ──► Claude: stack + plan ──► PLAN.md / ASSIGNMENT.md
 - **Moved access checks** into one module (`lib/docs.ts`) instead of per-page checks, so they can't be forgotten.
 - **Fixed a dependency conflict properly** (aligned `@types/node` with vitest's peer range) instead of shipping `--legacy-peer-deps`, which would break the Vercel install.
 - **Simplified the data layer.** The AI's first version used an embedded Postgres (PGlite) locally and Neon in production for zero-setup local runs. I rejected two databases and kept one Postgres for every environment: a single source of truth and nothing environment-specific to break. (The embedded DB had already caused a crash on a fresh checkout, caught in browser testing.)
+- **Fixed import fidelity instead of documenting it.** Importing this repo's own `PLAN.md` showed tables collapsed into one paragraph: the importer produced tables, but the editor schema didn't support them and silently dropped them. Added Tiptap's table, task-list and image extensions, turned links back on, and added a fixture with every Markdown element (`tests/fixtures/all-formatting.md`) as a regression test.
+- **Caught a state leak in generated UI:** the sign-in/sign-up form shared one action state across both modes, so a sign-in error carried into sign-up. Split it so each mode has its own state.
 - **Removed a client import of server code:** the share panel imported the seed list from `db.ts`, which would have pulled the Postgres driver into the browser bundle; the list is passed as a prop instead.
 
 ## How I verified correctness, UX, and reliability
 
-- `tests/docs.test.ts` (vitest, 6 tests) runs the real SQL against the app's Postgres: non-shared users can't read/edit, viewers can't edit or reshare, editors' formatted edits persist, unknown emails and self-share are rejected, revoking removes access, import escapes HTML and rejects bad files.
+- 13 vitest tests run the real SQL against the app's Postgres. `tests/docs.test.ts` (9 tests): non-shared users can't read/edit, viewers can't edit or reshare, editors' formatted edits persist, unknown emails and self-share are rejected, revoking removes access, import keeps tables/task lists, escapes HTML and rejects bad files, stale saves are rejected, presence lists other active users. `tests/users.test.ts` (4 tests): password check, duplicate emails (any case), seeded users can't password-login, new users can receive shares.
 - `tsc`, `eslint`, and `next build` clean.
 - Agent-driven browser pass (Claude in Chrome) of every core flow in the production build against the real database, with two accounts for owner/viewer views. It caught two real bugs: a crash on a fresh checkout and a double-submit that could create duplicate documents. Full log in `PROGRESS.md`.
 - After each design change (Claude Design merge, Impeccable fixes) I re-ran typecheck, lint and tests and reviewed the diff for behavior changes.
-- I reviewed every generated file before committing; the code is small enough (~750 lines including tests) to read end to end.
+- I reviewed every generated file before committing; the code is small enough (~1,450 lines including tests) to read end to end.

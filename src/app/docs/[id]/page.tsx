@@ -33,7 +33,7 @@ export default async function DocPage({ params }: PageProps<"/docs/[id]">) {
         ← All documents
       </Link>
       <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_280px] xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-14">
-        <Editor docId={doc.id} initialTitle={doc.title} initialContent={doc.content} canEdit={doc.role !== "viewer"} />
+        <Editor docId={doc.id} initialTitle={doc.title} initialContent={doc.content} initialVersion={doc.version} canEdit={doc.role !== "viewer"} />
         <SharePanel docId={doc.id} isOwner={doc.role === "owner"} ownerName={doc.owner_name} shares={shares}
           userEmails={SEED_USERS.map((u) => u.email).filter((e) => e !== user.email)}
         />

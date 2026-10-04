@@ -100,15 +100,43 @@ export async function uploadDocument(_: Result | null, formData: FormData): Prom
   return res;
 }
 
-export async function saveDocument(docId: string, patch: { title?: string; content?: string }): Promise<Result> {
+export type SaveResult = Result & { version?: number; conflict?: boolean };
+
+export async function saveDocument(
+  docId: string,
+  patch: { title?: string; content?: string },
+  baseVersion: number,
+): Promise<SaveResult> {
   const user = await requireUser();
-  return run(async () => {
-    await docs.updateDoc(user.id, docId, {
-      title: patch.title === undefined ? undefined : title.parse(patch.title),
-      content: patch.content === undefined ? undefined : content.parse(patch.content),
-    });
+  let version = 0;
+  let conflict = false;
+  const res = await run(async () => {
+    try {
+      version = await docs.updateDoc(
+        user.id,
+        docId,
+        {
+          title: patch.title === undefined ? undefined : title.parse(patch.title),
+          content: patch.content === undefined ? undefined : content.parse(patch.content),
+        },
+        z.number().int().min(0).parse(baseVersion),
+      );
+    } catch (e) {
+      conflict = e instanceof docs.ConflictError;
+      throw e;
+    }
     revalidatePath("/");
   });
+  return res.ok ? { ...res, version } : { ...res, conflict };
+}
+
+export async function pingPresence(docId: string): Promise<docs.Presence | null> {
+  try {
+    const user = await requireUser();
+    return await docs.heartbeat(user.id, z.string().max(100).parse(docId));
+  } catch {
+    return null;
+  }
 }
 
 export async function deleteDocument(docId: string) {

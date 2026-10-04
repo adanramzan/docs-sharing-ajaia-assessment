@@ -12,7 +12,7 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 | 1.3 | Edit in browser | Tiptap editor | ✅ built |
 | 1.4 | Save & reopen | Debounced autosave → Postgres | ✅ built |
 | 1.5 | Bold / italic / underline | Toolbar + shortcuts | ✅ built |
-| 1.6 | Headings | H1 / H2 / H3 | ✅ built |
+| 1.6 | Headings | H1 / H2 / H3 (H4–H6 kept on import) | ✅ built |
 | 1.7 | Bulleted / numbered lists | Toolbar | ✅ built |
 | 2 | File upload | `.txt` / `.md` / `.docx` → new editable doc (4MB max, stated in UI) | ✅ built |
 | 3.1 | Document owner | `documents.owner_id` | ✅ built |
@@ -26,9 +26,9 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 | Requirement | Plan | Status |
 |---|---|---|
 | Setup & run instructions | `README.md` | ✅ done |
-| Live deployment | Vercel + Neon Postgres | ✅ deployed (live click-through pending) |
+| Live deployment | Vercel + Neon Postgres | ✅ live at https://docs-sharing-ajaia-assessment.vercel.app |
 | Validation & error handling | zod on server actions, role checks in `lib/docs.ts`, UI error messages | ✅ built |
-| ≥1 meaningful automated test | `tests/docs.test.ts` — sharing/roles/import against the real Postgres | ✅ 6 passing against Neon |
+| ≥1 meaningful automated test | `tests/docs.test.ts` — sharing/roles/import, save conflicts, presence against the real Postgres | ✅ 13 passing against Neon (`tests/docs.test.ts`, `tests/users.test.ts`) |
 | Architecture note | `ARCHITECTURE.md` | ✅ done |
 
 ## 3. Written deliverables
@@ -47,9 +47,10 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 1. Main flow: log in as Alice → new doc → format → rename → refresh (persists)
 2. Import a `.md`/`.docx` file
 3. Share with Bob as viewer → switch to Bob → "Shared with me", read-only → upgrade to editor
-4. What was deprioritized (real-time co-editing, real auth, comments, version history)
-5. Key decisions (Tiptap, server actions, access checks in one module, single Postgres)
-6. How AI was used
+4. Stretch: Download .md / Export PDF; presence and the conflict prompt (two browser profiles)
+5. What was deprioritized (real-time co-editing, real auth, comments, version history)
+6. Key decisions (Tiptap, server actions, access checks in one module, single Postgres)
+7. How AI was used
 
 ## 5. Submission
 
@@ -60,10 +61,10 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 
 ## 6. Optional stretch (only if core is done)
 
-- [ ] Export to Markdown
+- [x] Export to Markdown and PDF ("Download .md" / "Export PDF" on every document)
+- [x] Real-time collaboration indicators ("Also here:" presence) + save conflict check (stale saves rejected with a reload prompt)
 - Role-based permissions (viewer/editor) — ✅ already built
 
 ## Deliberately out of scope
 
-Real-time multi-user editing (CRDT/websockets), real authentication, comments/suggestions, version history.
-Concurrent edits are last-write-wins.
+Real-time multi-user editing (CRDT/websockets for merged edits), real authentication, comments/suggestions, version history.
