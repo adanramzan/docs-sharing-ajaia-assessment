@@ -2,7 +2,8 @@
 
 A lightweight collaborative document editor: create, format, import, and share documents.
 
-**Live demo:** https://docs-sharing-ajaia-assessment.vercel.app · **Video:** https://www.loom.com/share/403413dfd5594201928522a43ef254be
+- **Live demo:** [docs-sharing-ajaia-assessment.vercel.app](https://docs-sharing-ajaia-assessment.vercel.app)
+- **Video walkthrough:** [Watch on Loom](https://www.loom.com/share/403413dfd5594201928522a43ef254be)
 
 ## Test accounts
 
