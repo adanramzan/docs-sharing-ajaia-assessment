@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ajaia Docs
 
-## Getting Started
+A lightweight collaborative document editor: create, format, import, and share documents.
 
-First, run the development server:
+**Live demo:** _<add Vercel URL>_ · **Video:** see `VIDEO_URL.txt`
+
+## Test accounts
+
+Auth is mocked: pick a seeded account on the login screen. Use **Switch user** (top right) to change accounts.
+
+| Name | Email |
+|---|---|
+| Alice Chen | alice@ajaia.test |
+| Bob Patel | bob@ajaia.test |
+| Carol Diaz | carol@ajaia.test |
+
+**Try sharing:** log in as Alice → create a doc → in the Sharing panel enter `bob@ajaia.test`, choose *Can view* → Share → Switch user → Bob → the doc is under **Shared with me** and opens read-only. Change Bob to *Can edit* and he can edit.
+
+## Features
+
+- Create, rename, edit, and autosave documents (debounced; status shown next to the title)
+- Rich text: bold, italic, underline, H1–H3, bulleted & numbered lists, undo/redo (toolbar + keyboard shortcuts)
+- **File import:** `.txt`, `.md`, `.docx` (max 4MB) → new editable document. Other types are rejected with a clear message.
+- **Sharing:** owner shares by email with a role (viewer / editor), can change or remove access, and can delete the doc. Dashboard separates *My documents* from *Shared with me*.
+- Persistence in Postgres; formatting stored as HTML and re-validated by the editor schema on load.
+
+## Run locally
+
+Requires Node 20+.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+No database setup needed: without `DATABASE_URL`, the app uses an embedded Postgres (PGlite) stored in `./.data/`. Tables and seeded users are created automatically on first request.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To use a real Postgres instead, set `DATABASE_URL` (e.g. in `.env.local`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test           # vitest: sharing/access rules + file import, against in-memory Postgres
+npm run build && npm start
+```
 
-## Learn More
+## Deploy (Vercel)
 
-To learn more about Next.js, take a look at the following resources:
+1. Import the GitHub repo in Vercel (defaults are fine).
+2. Project → Storage → Create → Postgres (Neon, free). This sets `DATABASE_URL`.
+3. Redeploy. Schema + seed users are created on first request.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/lib/db.ts        Postgres/PGlite connection, schema, seed users
+src/lib/docs.ts      Document + sharing logic; all access checks live here
+src/lib/import.ts    .txt/.md/.docx → HTML
+src/lib/auth.ts      Mocked cookie auth
+src/app/actions.ts   Server actions: input validation (zod) → lib/docs
+src/app/page.tsx     Login picker + dashboard
+src/app/docs/[id]/   Editor (Tiptap), sharing panel
+tests/docs.test.ts   Automated tests
+```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `ARCHITECTURE.md` and `AI_WORKFLOW.md` for decisions and process.

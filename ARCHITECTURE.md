@@ -1,0 +1,41 @@
+# Architecture Note
+
+## Shape
+
+One Next.js 16 app (App Router) deployed on Vercel: React UI, server actions as the API, Postgres for storage.
+
+```
+Browser (Tiptap editor, forms)
+   │  server actions (zod validation)
+   ▼
+src/app/actions.ts ──► src/lib/docs.ts (access rules + SQL) ──► src/lib/db.ts ──► Postgres (Neon) | PGlite (local/tests)
+```
+
+## What I prioritized and why
+
+1. **Correct access control over feature count.** Every read/write goes through `lib/docs.ts`, which takes the acting user and checks role (`owner` / `editor` / `viewer`) in the same SQL that fetches the doc. Pages and actions can't skip a check because there is no other path to the data. This is the area most likely to be subtly wrong, so it's also what the tests cover.
+2. **A usable editor, not a custom one.** Tiptap (ProseMirror) gives a solid editing core, keyboard shortcuts, and a schema. I spent time on the parts users feel: toolbar active states, debounced autosave with visible status, retry-on-failure, flush on tab close.
+3. **Zero-setup local run + free deploy.** Without `DATABASE_URL` the app uses PGlite (real Postgres in WASM), so `npm install && npm run dev` works with no database setup, and tests run against the same SQL as production.
+4. **File import that produces a real document.** `.txt`/`.md`/`.docx` become new editable docs (mammoth for docx, marked for md). That makes import useful, not just an attachment.
+
+## Key decisions
+
+| Decision | Why | Tradeoff |
+|---|---|---|
+| Store content as HTML | Tiptap reads/writes it natively; imports produce HTML; readable in DB | Less structured than ProseMirror JSON; fine at this scope |
+| Editor schema as sanitizer | Content is only ever rendered through Tiptap, which drops unknown tags/attrs, so imported or stored markup can't inject script | Would need explicit sanitizing if HTML were ever rendered directly |
+| Server actions instead of a REST API | Less code, typed end to end, built-in CSRF protection | No public API for other clients |
+| Mocked auth (pick a seeded user, httpOnly cookie) | Brief allows it; real auth would consume ~1h with no evaluation value | Not secure; anyone can be anyone. Swap for Auth.js/Clerk |
+| Viewer/editor roles | Small extra cost on top of basic sharing, makes the model realistic | — |
+| Last-write-wins saves | Real-time co-editing (CRDT + websockets) is a project on its own | Two simultaneous editors can overwrite each other |
+
+## Deliberately out of scope
+
+Real-time collaboration/presence, comments/suggestions, version history, real authentication, sharing to non-registered emails, image embeds, pagination/search of the doc list.
+
+## What I'd build next (2–4 hours)
+
+1. Conflict safety: send `updated_at` with each save and reject stale writes (optimistic concurrency), surfacing "this doc changed, reload".
+2. Real auth (Auth.js with email magic link) replacing the user picker.
+3. Version history: snapshot content on save into a `document_versions` table, with restore.
+4. Export to Markdown/PDF; Playwright test for the share → switch user → read-only flow.
