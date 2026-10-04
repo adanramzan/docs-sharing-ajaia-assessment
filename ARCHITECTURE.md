@@ -18,6 +18,14 @@ src/app/actions.ts ──► src/lib/docs.ts (access rules + SQL) ──► src/
 3. **One database everywhere.** Local dev, tests, and production all use the same Postgres (Neon, free via Vercel). No second engine to keep in sync, so what's tested is what runs. Schema and seed users are created on first connection, so there's no migration step.
 4. **File import that produces a real document.** `.txt`/`.md`/`.docx` become new editable docs (mammoth for docx, marked for md). That makes import useful, not just an attachment.
 
+## Data model
+
+```
+users(id, name, email, password_hash NULL)   ← seeded users have NULL (one-click only)
+documents(id, owner_id → users, title, content HTML, created_at, updated_at)
+shares(doc_id → documents, user_id → users, role 'viewer'|'editor')   PK(doc_id, user_id)
+```
+
 ## Key decisions
 
 | Decision | Why | Tradeoff |
@@ -25,7 +33,7 @@ src/app/actions.ts ──► src/lib/docs.ts (access rules + SQL) ──► src/
 | Store content as HTML | Tiptap reads/writes it natively; imports produce HTML; readable in DB | Less structured than ProseMirror JSON; fine at this scope |
 | Editor schema as sanitizer | Content is only ever rendered through Tiptap, which drops unknown tags/attrs, so imported or stored markup can't inject script | Would need explicit sanitizing if HTML were ever rendered directly |
 | Server actions instead of a REST API | Less code, typed end to end, built-in CSRF protection | No public API for other clients |
-| Mocked auth (pick a seeded user, httpOnly cookie) | Brief allows it; real auth would consume ~1h with no evaluation value | Not secure; anyone can be anyone. Swap for Auth.js/Clerk |
+| Email + password sign-up (scrypt hashing, httpOnly cookie) | Brief allows mocked auth; added sign-up after core was shipped. Passwords use Node's built-in `scrypt` (16-byte salt, `timingSafeEqual` compare). Seeded demo users skip password login. | The `uid` cookie is unsigned; no password reset, email verification, session expiry, or rate limiting. Before real use: signed sessions, Auth.js/Clerk. |
 | Viewer/editor roles | Small extra cost on top of basic sharing, makes the model realistic | — |
 | Last-write-wins saves | Real-time co-editing (CRDT + websockets) is a project on its own | Two simultaneous editors can overwrite each other |
 

@@ -24,6 +24,7 @@ const SCHEMA = [
      role TEXT NOT NULL CHECK (role IN ('viewer', 'editor')),
      PRIMARY KEY (doc_id, user_id)
    )`,
+  `ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT`,
 ];
 
 export const SEED_USERS = [

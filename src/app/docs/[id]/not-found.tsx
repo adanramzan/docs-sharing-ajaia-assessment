@@ -1,16 +1,23 @@
 import Link from "next/link";
-import { btnPrimary } from "../../ui";
+import { btnPrimary, Dot, Masthead } from "../../ui";
 
 export default function NotFound() {
   return (
-    <main className="mx-auto w-full max-w-sm px-4 py-18 sm:py-24">
-      <h1 className="mb-3 border-b-2 border-divider pb-3 text-[28px] sm:text-[32px]">Document not available</h1>
-      <p className="mb-6 text-[15px] text-pretty text-neutral-800">
-        It may have been deleted, or you don&apos;t have access. Ask the owner to share it with you.
-      </p>
-      <Link href="/" className={btnPrimary}>
-        ← Back to all documents
-      </Link>
+    <main className="mx-auto w-full max-w-5xl px-4 pt-5 pb-20 sm:px-6">
+      <Masthead>
+        <span />
+      </Masthead>
+      <div className="max-w-xl py-16 sm:py-24">
+        <h1 className="mb-5 text-[clamp(2.25rem,6vw,3.75rem)] leading-[.95] font-extrabold tracking-[-.04em] text-balance reveal">
+          Document not available<Dot />
+        </h1>
+        <p className="mb-8 font-serif text-lg text-pretty text-neutral-800">
+          It may have been deleted, or you don&apos;t have access. Ask the owner to share it with you.
+        </p>
+        <Link href="/" className={btnPrimary}>
+          ← Back to all documents
+        </Link>
+      </div>
     </main>
   );
 }

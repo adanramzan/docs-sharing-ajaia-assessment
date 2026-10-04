@@ -14,9 +14,9 @@ export function UploadForm() {
           accept=".txt,.md,.docx"
           required
           disabled={pending}
-          className="max-w-full text-[13px] text-neutral-700 file:mr-2 file:cursor-pointer file:border file:border-control file:px-3 file:py-1.5 file:text-[13px] file:font-extrabold file:text-text hover:file:bg-text/7 disabled:file:opacity-45"
+          className="w-52 max-w-full text-[13px] text-neutral-700 file:mr-2 file:cursor-pointer file:border file:border-control file:px-3 file:py-2 file:text-[13px] file:font-extrabold file:text-text hover:file:bg-text/7 disabled:file:opacity-45"
         />
-        <button disabled={pending} className={btnSecondary}>
+        <button disabled={pending} className={`${btnSecondary} py-2`}>
           {pending ? "Importing…" : "Import as new doc"}
         </button>
       </div>

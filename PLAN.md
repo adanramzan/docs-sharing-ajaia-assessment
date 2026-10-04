@@ -90,7 +90,9 @@ shares(doc_id → documents, user_id → users, role 'viewer'|'editor')   PK(doc
 | Change | Why |
 |---|---|
 | First build used embedded Postgres (PGlite) locally + Neon in production; **switched to one Neon database for local, tests and production** | Decision during review: one source of truth, nothing environment-specific to break. The embedded DB had also caused a crash on a fresh checkout |
-| **Added a design pass** (Claude Design, from a generated screen brief: `SCREENS.md`, `PRODUCT.md`) | Brief evaluates UX quality; the pass was a restyle only, with no behavior changes |
+| **Ran design in parallel with implementation**: a subagent wrote `SCREENS.md` from the code, Claude Design produced the UI, then it was merged as a restyle | Brief evaluates UX quality; doing it in parallel cost no build time, and restyle-only kept behavior unchanged |
+| **Added an Impeccable critique pass** after deploy | Structured review (25/40, three P1s) caught issues the walkthrough didn't: overloaded red, focus ring on the editor, share form losing input on error |
 | **Added pending states** to action buttons | Found in browser testing: with database latency, a double-click could create two documents |
 | Fixed a dependency conflict properly (aligned `@types/node`) instead of `--legacy-peer-deps` | Would otherwise risk the Vercel install |
 | Export to Markdown (stretch) | Not done; core, deploy and docs took priority |
+| **Added email + password sign-up** after core, tests, deploy, and docs were done | User request; kept small with stdlib scrypt and the same session cookie. Seeded one-click logins still work. |

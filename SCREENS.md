@@ -1,5 +1,7 @@
 # Ajaia Docs — Screen Design Brief
 
+> The original brief handed to Claude Design, generated from the code by a subagent. Kept as-is for the record; the final accent became red instead of blue (see `PRODUCT.md`).
+
 ## 1. Product
 
 Ajaia Docs is a lightweight Google Docs-style editor: create, import, format and share rich-text documents. Users are knowledge workers who want to write without distraction. The UI should feel clean, calm and quietly professional, like a productivity tool. Light theme only, generous whitespace, one accent color (currently blue-600), neutral grays, and no decoration beyond what helps people focus.

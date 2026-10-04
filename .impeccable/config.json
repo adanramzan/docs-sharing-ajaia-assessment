@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "src/app/globals.css"
+        ],
+        "createdAt": "2026-10-04T21:16:31.027Z",
+        "reason": "Claude: L79 is the editor's blockquote rule (3px divider-gray left border), a standard typographic quote convention inside document content, not a card accent"
+      }
+    ]
+  }
+}

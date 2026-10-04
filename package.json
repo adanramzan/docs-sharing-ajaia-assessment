@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@tiptap/extension-table": "^3.31.4",
     "@tiptap/extensions": "3.31.4",
     "@tiptap/html": "3.31.4",
     "@tiptap/pm": "3.31.4",

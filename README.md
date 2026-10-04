@@ -6,7 +6,7 @@ A lightweight collaborative document editor: create, format, import, and share d
 
 ## Test accounts
 
-Auth is mocked: pick a seeded account on the login screen. Use **Switch user** (top right) to change accounts.
+**Sign up** with email + password (≥8 chars), or pick a seeded account on the login screen for one-click login. Use **Sign out** (top right) to change accounts.
 
 | Name | Email |
 |---|---|
@@ -14,7 +14,7 @@ Auth is mocked: pick a seeded account on the login screen. Use **Switch user** (
 | Bob Patel | bob@ajaia.test |
 | Carol Diaz | carol@ajaia.test |
 
-**Try sharing:** log in as Alice → create a doc → in the Sharing panel enter `bob@ajaia.test`, choose *Can view* → Share → Switch user → Bob → the doc is under **Shared with me** and opens read-only. Change Bob to *Can edit* and he can edit.
+**Try sharing:** log in as Alice → create a doc → in the Sharing panel enter `bob@ajaia.test`, choose *Can view* → Share → Sign out → Bob → the doc is under **Shared with me** and opens read-only. Change Bob to *Can edit* and he can edit.
 
 ## Features
 
@@ -77,4 +77,5 @@ tests/docs.test.ts   Automated tests
 | [`AI_WORKFLOW.md`](./AI_WORKFLOW.md) | AI tools used, what was changed or rejected, how it was verified |
 | [`SUBMISSION.md`](./SUBMISSION.md) | What's included, status, test accounts |
 | [`docs/DEPLOY.md`](./docs/DEPLOY.md) | Exact Vercel + Neon setup |
-| [`ASSIGNMENT.md`](./ASSIGNMENT.md), [`PRODUCT.md`](./PRODUCT.md), [`SCREENS.md`](./SCREENS.md) | Requirements checklist, product context, screen brief for the design pass |
+| [`ASSIGNMENT.md`](./ASSIGNMENT.md), [`PRODUCT.md`](./PRODUCT.md), [`SCREENS.md`](./SCREENS.md) | Requirements checklist, product context, screen brief for Claude Design |
+| [`.impeccable/critique/`](./.impeccable/critique/) | Impeccable UI critique that drove the final UI fixes |

@@ -3,9 +3,11 @@ import { currentUser } from "@/lib/auth";
 import { SEED_USERS } from "@/lib/db";
 import { listDocs, type DocSummary } from "@/lib/docs";
 import { createDocument, login, logout } from "./actions";
+import { AuthForms } from "./auth-forms";
+import { LinkLoader } from "./link-loader";
 import { SubmitButton } from "./submit-button";
 import { UploadForm } from "./upload-form";
-import { btnPrimary, btnSecondary, RolePill } from "./ui";
+import { btnPrimary, btnSecondary, display, Dot, Kicker, Masthead, RolePill, stagger } from "./ui";
 
 export const dynamic = "force-dynamic";
 
@@ -15,58 +17,82 @@ export default async function Home() {
   const { owned, shared } = await listDocs(user.id);
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 pt-6 pb-6 sm:pt-8">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b-2 border-divider pb-4 sm:mb-8 sm:gap-4">
-        <h1 className="text-2xl whitespace-nowrap">Ajaia Docs</h1>
-        <form action={logout} className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+    <main className="mx-auto w-full max-w-5xl px-4 pt-5 pb-20 sm:px-6">
+      <Masthead>
+        <form action={logout} className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <span>
-            {user.name} <span className="text-neutral-700">({user.email})</span>
+            <span className="font-semibold">{user.name}</span> <span className="text-neutral-700">({user.email})</span>
           </span>
-          <SubmitButton className={btnSecondary}>Switch user</SubmitButton>
+          <SubmitButton className={btnSecondary} pendingText="Signing out…">Sign out</SubmitButton>
         </form>
-      </header>
+      </Masthead>
 
-      <section className="mb-8 flex flex-wrap items-start gap-4 sm:mb-10 sm:gap-6">
-        <form action={createDocument}>
-          <SubmitButton className={btnPrimary} pendingText="Creating…">
-            + New document
-          </SubmitButton>
-        </form>
-        <UploadForm />
+      <section className="mt-8 mb-10 flex flex-wrap items-start justify-between gap-x-8 gap-y-5 sm:mt-12 sm:mb-12">
+        <h1 className={`${display} reveal`}>
+          Your documents
+          <Dot />
+        </h1>
+        <div className="flex flex-wrap items-start gap-x-3 gap-y-3">
+          <form action={createDocument}>
+            <SubmitButton className={`${btnPrimary} py-2`} pendingText="Creating…">
+              + New document
+            </SubmitButton>
+          </form>
+          <UploadForm />
+        </div>
       </section>
 
-      <DocList title="My documents" docs={owned} empty="No documents yet. Create one or import a file." />
-      <DocList title="Shared with me" docs={shared} empty="Nothing has been shared with you yet." />
+      <div className="grid gap-12 sm:gap-16">
+        <DocList title="My documents" docs={owned} empty="No documents yet. Create one or import a file." />
+        <DocList title="Shared with me" docs={shared} empty="Nothing has been shared with you yet." />
+      </div>
     </main>
   );
 }
 
+// "Oct 5, 14:02" — compact and consistent; rendered on the server, so it uses the server's timezone.
+const stamp = (d: string | Date) =>
+  new Date(d).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+const day = (d: string | Date) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
 function DocList({ title, docs, empty }: { title: string; docs: DocSummary[]; empty: string }) {
   return (
-    <section className="mb-8 sm:mb-10">
-      <h2 className="mb-2.5 text-xs leading-none font-semibold tracking-[.08em] text-neutral-700 uppercase">{title}</h2>
+    <section>
+      <div className="mb-3">
+        <Kicker count={docs.length}>{title}</Kicker>
+      </div>
       {docs.length === 0 ? (
-        <p className="border border-dashed border-neutral-600 px-4 py-6 text-sm text-neutral-700">{empty}</p>
+        <p className="border-y-2 border-text py-8 font-serif text-lg text-neutral-700 italic">{empty}</p>
       ) : (
-        <ul className="border-t-2 border-divider">
-          {docs.map((d) => (
-            <li key={d.id}>
-              <Link
-                href={`/docs/${d.id}`}
-                className="flex items-center justify-between gap-3 border-b border-divider px-1 py-3 hover:bg-text/5 focus-visible:outline-offset-[-2px] sm:gap-4 sm:px-2"
-              >
-                <span className="min-w-0 truncate font-semibold">{d.title}</span>
-                <span className="flex shrink-0 items-center gap-2.5 text-xs whitespace-nowrap text-neutral-700 tabular-nums">
-                  {d.role !== "owner" && <RolePill role={d.role}>{d.owner_name} · {d.role}</RolePill>}
-                  <span className="hidden sm:inline">{new Date(d.updated_at).toLocaleString()}</span>
-                  {d.role === "owner" && (
-                    <span className="sm:hidden">{new Date(d.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+        <ol className="border-t-2 border-text">
+          {docs.map((d, i) => (
+            <li key={d.id} className="rise relative" style={stagger(i)}>
+              <Link href={`/docs/${d.id}`} className="group grid grid-cols-[2rem_minmax(0,1fr)_auto] items-baseline gap-3 border-b border-divider py-4 hover:bg-paper focus-visible:outline-offset-[-2px] sm:grid-cols-[3rem_minmax(0,1fr)_auto] sm:gap-4 sm:px-2">
+                <span className="text-xs font-semibold text-neutral-700 tabular-nums transition-colors group-hover:text-accent-700">{String(i + 1).padStart(2, "0")}</span>
+                <span className="truncate text-[17px] transition-transform duration-200 group-hover:translate-x-1.5 font-bold tracking-[-.01em] sm:text-lg">{d.title}</span>
+                <span className="flex items-center gap-3 text-xs whitespace-nowrap text-neutral-700 tabular-nums">
+                  {d.role !== "owner" && (
+                    <RolePill role={d.role}>
+                      {d.owner_name} · {d.role}
+                    </RolePill>
                   )}
+                  <span className="hidden sm:inline">{stamp(d.updated_at)}</span>
+                  {d.role === "owner" && <span className="sm:hidden">{day(d.updated_at)}</span>}
+                  <span aria-hidden="true" className="hidden -translate-x-1 text-accent-700 opacity-0 transition-[opacity,translate] duration-200 group-hover:translate-x-0 group-hover:opacity-100 sm:inline">
+                    →
+                  </span>
                 </span>
+                <LinkLoader label="Opening document" />
               </Link>
             </li>
           ))}
-        </ul>
+        </ol>
       )}
     </section>
   );
@@ -74,19 +100,41 @@ function DocList({ title, docs, empty }: { title: string; docs: DocSummary[]; em
 
 function Login() {
   return (
-    <main className="mx-auto w-full max-w-sm px-4 py-24">
-      <h1 className="mb-2 text-[32px]">Ajaia Docs</h1>
-      <p className="mb-6 text-sm text-neutral-700">Demo login: pick a seeded account. Use two accounts to try sharing.</p>
-      <div className="border-t-2 border-divider">
-        {SEED_USERS.map((u) => (
-          <form key={u.id} action={login}>
-            <input type="hidden" name="userId" value={u.id} />
-            <SubmitButton className="block w-full cursor-pointer border-b border-divider px-3 py-3.5 disabled:cursor-wait disabled:opacity-60 text-left hover:bg-text/7 focus-visible:outline-offset-[-2px] active:bg-text/14 active:shadow-[inset_3px_0_0_var(--color-accent-700)]">
-              <span className="text-[15px] font-semibold">{u.name}</span>
-              <span className="block text-xs text-neutral-700">{u.email}</span>
-            </SubmitButton>
-          </form>
-        ))}
+    <main className="mx-auto grid w-full max-w-5xl flex-1 content-start gap-10 px-4 py-16 md:pt-[16vh] sm:px-6 md:grid-cols-[1fr_1fr] md:items-start md:gap-16">
+      <div>
+        <h1 className={`${display} reveal mb-5`}>
+          Ajaia Docs
+          <Dot />
+        </h1>
+        <p className="max-w-sm font-serif text-lg text-neutral-800">Demo: pick a seeded account, or create your own. Use two accounts to try sharing.</p>
+      </div>
+      <div>
+        <div className="mb-3">
+          <Kicker>Demo accounts · one click</Kicker>
+        </div>
+        <div className="border-t-2 border-text">
+          {SEED_USERS.map((u, i) => (
+            <form key={u.id} action={login} className="rise relative" style={stagger(i)}>
+              <input type="hidden" name="userId" value={u.id} />
+              <SubmitButton loader={`Opening ${u.name.split(" ")[0]}’s documents`} className="group grid w-full cursor-pointer grid-cols-[2rem_1fr_auto] items-baseline gap-3 border-b border-divider px-1 py-4 text-left hover:bg-paper focus-visible:outline-offset-[-2px] active:shadow-[inset_3px_0_0_var(--color-accent-700)] disabled:cursor-wait disabled:opacity-60">
+                <span className="text-xs font-semibold text-neutral-700 tabular-nums group-hover:text-accent-700">{String(i + 1).padStart(2, "0")}</span>
+                <span>
+                  <span className="block text-lg font-bold tracking-[-.01em]">{u.name}</span>
+                  <span className="block text-sm text-neutral-700">{u.email}</span>
+                </span>
+                <span aria-hidden="true" className="text-accent-700 opacity-0 transition-opacity group-hover:opacity-100">
+                  →
+                </span>
+              </SubmitButton>
+            </form>
+          ))}
+        </div>
+        <div className="mt-12">
+          <div className="mb-3">
+            <Kicker>Or use your own account</Kicker>
+          </div>
+          <AuthForms />
+        </div>
       </div>
     </main>
   );

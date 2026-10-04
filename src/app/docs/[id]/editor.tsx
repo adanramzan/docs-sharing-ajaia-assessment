@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent }
 import { EditorContent, useEditor, type Editor as TiptapEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Placeholder } from "@tiptap/extensions";
+import { TableKit } from "@tiptap/extension-table";
 import { saveDocument } from "../../actions";
 
 type Status = "saved" | "unsaved" | "saving" | { error: string };
@@ -38,12 +39,12 @@ export function Editor(props: { docId: string; initialTitle: string; initialCont
   }
 
   const editor = useEditor({
-    extensions: [StarterKit.configure({ link: false }), ...(canEdit ? [Placeholder.configure({ placeholder: "Start writing…" })] : [])],
+    extensions: [StarterKit.configure({ link: false }), TableKit, ...(canEdit ? [Placeholder.configure({ placeholder: "Start writing…" })] : [])],
     content: props.initialContent,
     editable: canEdit,
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
-    editorProps: { attributes: { class: "tiptap min-h-[40vh] p-5 sm:min-h-[60vh] sm:px-10 sm:py-8 focus:outline-none" } },
+    editorProps: { attributes: { class: "tiptap min-h-[45vh] px-5 pt-7 pb-14 sm:min-h-[60vh] sm:px-16 sm:pt-12 sm:pb-24 focus:outline-none" } },
     onUpdate: ({ editor }) => queue({ content: editor.getHTML() }),
   });
 
@@ -67,7 +68,8 @@ export function Editor(props: { docId: string; initialTitle: string; initialCont
   return (
     <div className="min-w-0">
       <h1 className="sr-only">{title}</h1>
-      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 sm:flex-nowrap">
+      {/* Title sits on the desk above the sheet, so the toolbar only governs the body. */}
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1 sm:mb-5">
         <input
           value={title}
           readOnly={!canEdit}
@@ -78,21 +80,22 @@ export function Editor(props: { docId: string; initialTitle: string; initialCont
             if (e.target.value.trim()) queue({ title: e.target.value });
           }}
           onBlur={() => !title.trim() && setTitle(props.initialTitle)}
-          className="min-w-0 flex-[1_1_100%] border border-transparent bg-transparent px-2 py-1 text-2xl leading-tight font-extrabold tracking-[-.015em] read-only:cursor-default hover:border-divider read-only:hover:border-transparent focus-visible:border-accent focus-visible:bg-neutral-100 focus-visible:outline-offset-0 sm:flex-1 sm:text-[30px]"
+          className="-mx-2 min-w-0 flex-[1_1_100%] border border-transparent bg-transparent px-2 py-1 text-[clamp(1.875rem,4.5vw,3rem)] leading-[1.05] font-extrabold tracking-[-.035em] read-only:cursor-default hover:border-divider read-only:hover:border-transparent focus-visible:border-accent focus-visible:outline-offset-0 sm:flex-1"
         />
         <SaveStatus status={canEdit ? status : "readonly"} />
       </div>
-      <div className="border border-divider bg-neutral-100 shadow-sm">
+      {/* The document body as a sheet of paper on the desk. */}
+      <article className="sheet-in bg-paper shadow-paper">
         {canEdit && editor && <Toolbar editor={editor} />}
-        <EditorContent editor={editor} className="[&_.is-editor-empty:first-child]:before:pointer-events-none [&_.is-editor-empty:first-child]:before:float-left [&_.is-editor-empty:first-child]:before:h-0 [&_.is-editor-empty:first-child]:before:text-neutral-700 [&_.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]" />
-      </div>
+        <EditorContent editor={editor} className="[&_.is-editor-empty:first-child]:before:pointer-events-none [&_.is-editor-empty:first-child]:before:float-left [&_.is-editor-empty:first-child]:before:h-0 [&_.is-editor-empty:first-child]:before:text-neutral-700 [&_.is-editor-empty:first-child]:before:italic [&_.is-editor-empty:first-child]:before:content-[attr(data-placeholder)]" />
+      </article>
     </div>
   );
 }
 
 function SaveStatus({ status }: { status: Status | "readonly" }) {
-  // Fixed 200px slot on desktop so the title doesn't jump as the status text changes.
-  const slot = "pl-2.5 text-xs leading-[1.35] sm:w-[200px] sm:shrink-0 sm:pl-0 sm:text-right";
+  // Fixed-width slot on desktop so the title doesn't jump as the status text changes.
+  const slot = "pb-2 text-xs leading-[1.35] sm:w-[180px] sm:shrink-0 sm:text-right";
   if (status === "readonly")
     return (
       <span className={`${slot} sm:flex sm:justify-end`}>
@@ -157,10 +160,10 @@ function Toolbar({ editor }: { editor: TiptapEditor }) {
   }
 
   return (
-    <div ref={ref} onKeyDown={onKeyDown} className="sticky top-0 z-10 flex flex-wrap items-center gap-x-1 gap-y-1 border-b-2 border-divider bg-surface p-2" role="toolbar" aria-label="Formatting">
+    <div ref={ref} onKeyDown={onKeyDown} className="sticky top-0 z-10 flex flex-wrap items-center gap-x-3 gap-y-1 sm:gap-x-1 border-b border-divider bg-paper/95 px-2 py-1.5 backdrop-blur-sm sm:px-14 max-sm:px-3" role="toolbar" aria-label="Formatting">
       {groups.map((g, gi) => (
         <span key={gi} className="flex items-center gap-1">
-          {gi > 0 && <span aria-hidden="true" className="mr-1 h-5 w-px bg-divider" />}
+          {gi > 0 && <span aria-hidden="true" className="mr-1 hidden h-5 w-px bg-divider sm:block" />}
           {g.map(([label, name, onClick, active, disabled, key]) => (
             <button
               key={name}
@@ -173,7 +176,7 @@ function Toolbar({ editor }: { editor: TiptapEditor }) {
               onClick={onClick}
               onFocus={() => setRove(name)}
               className={`h-8 min-w-8 cursor-pointer px-2 text-[13px] font-semibold whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-45 ${
-                active ? "bg-accent-100 text-accent-800 shadow-[inset_0_-2px_0_var(--color-accent)]" : "enabled:hover:bg-neutral-300"
+                active ? "bg-accent-100 text-accent-800 shadow-[inset_0_-2px_0_var(--color-accent)]" : "enabled:hover:bg-neutral-200"
               } ${label === "B" ? "font-extrabold" : label === "I" ? "italic" : label === "U" ? "underline" : ""}`}
             >
               {label}

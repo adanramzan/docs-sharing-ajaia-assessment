@@ -1,5 +1,5 @@
-// Mocked auth: the user picks a seeded account and we store its id in an httpOnly cookie.
-// ponytail: no passwords/sessions; swap for NextAuth/Clerk before any real use.
+// Auth: seeded users log in with one click; signed-up users with email + password (lib/users.ts). Either way we store the id in an httpOnly cookie.
+// ponytail: unsigned cookie, no expiry/reset/rate limiting; sign the cookie or swap for NextAuth/Clerk before any real use.
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { sql } from "./db";

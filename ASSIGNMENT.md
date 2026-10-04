@@ -18,7 +18,7 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 | 3.1 | Document owner | `documents.owner_id` | ✅ built |
 | 3.2 | Grant another user access | Share panel, by email, viewer/editor role | ✅ built |
 | 3.3 | Owned vs shared distinction | "My documents" / "Shared with me" sections | ✅ built |
-| 3.4 | Users | 3 seeded accounts + "log in as" picker (mocked auth) | ✅ built |
+| 3.4 | Users | 3 seeded accounts (one-click login) + sign-up with email + password | ✅ built |
 | 4 | Persistence | One Postgres (Neon via Vercel), used locally and in prod | ✅ built |
 
 ## 2. Engineering quality
@@ -26,7 +26,7 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 | Requirement | Plan | Status |
 |---|---|---|
 | Setup & run instructions | `README.md` | ✅ done |
-| Live deployment | Vercel + Neon Postgres | ⏳ deployed, verify live |
+| Live deployment | Vercel + Neon Postgres | ✅ deployed (live click-through pending) |
 | Validation & error handling | zod on server actions, role checks in `lib/docs.ts`, UI error messages | ✅ built |
 | ≥1 meaningful automated test | `tests/docs.test.ts` — sharing/roles/import against the real Postgres | ✅ 6 passing against Neon |
 | Architecture note | `ARCHITECTURE.md` | ✅ done |
@@ -36,8 +36,10 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 - [x] `README.md` — local setup, run, test, seeded users, supported file types
 - [x] `ARCHITECTURE.md` — what was prioritized and why, scope cuts
 - [x] `AI_WORKFLOW.md` — tools used, where AI sped things up, what was changed/rejected, how verified
+- [x] `PLAN.md` — kickoff plan, plan vs. actual
+- [x] `PROGRESS.md` — milestone status and test log
 - [x] `SUBMISSION.md` — exact list of what's included, live URL, test accounts, what works / incomplete / next 2–4 hours
-- [ ] `VIDEO_URL.txt` — walkthrough link
+- [ ] `VIDEO_URL.txt` — walkthrough link (placeholder in repo)
 - [ ] Screenshots (optional; only if setup needs extra steps)
 
 ## 4. Walkthrough video (3–5 min, unlisted Loom/YouTube)
@@ -52,7 +54,7 @@ The live submission form needs a **video link** and a **Markdown submission** (m
 ## 5. Submission
 
 - [x] Push code to GitHub: `adanramzan/docs-sharing-ajaia-assessment`
-- [ ] Deploy on Vercel, add Postgres from Storage tab (you)
+- [x] Deploy on Vercel, add Neon Postgres from Storage tab
 - [ ] Google Drive folder with all materials
 - [ ] Paste video link + submission Markdown into the form, then submit
 

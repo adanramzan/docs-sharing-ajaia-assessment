@@ -8,6 +8,7 @@ import { requireUser } from "@/lib/auth";
 import { SEED_USERS } from "@/lib/db";
 import * as docs from "@/lib/docs";
 import { fileToHtml } from "@/lib/import";
+import { createUser, verifyUser } from "@/lib/users";
 
 export type Result = { ok: true } | { ok: false; error: string };
 
@@ -26,11 +27,53 @@ async function run(fn: () => Promise<void>): Promise<Result> {
   }
 }
 
+async function setSession(id: string) {
+  (await cookies()).set("uid", id, { httpOnly: true, sameSite: "lax", path: "/" });
+}
+
 export async function login(formData: FormData) {
   const id = String(formData.get("userId"));
   if (!SEED_USERS.some((u) => u.id === id)) return;
-  (await cookies()).set("uid", id, { httpOnly: true, sameSite: "lax", path: "/" });
+  await setSession(id);
   redirect("/");
+}
+
+const email = z.email("Enter a valid email.");
+
+export async function signup(_: Result | null, formData: FormData): Promise<Result> {
+  let id = "";
+  const res = await run(async () => {
+    const f = z
+      .object({
+        name: z.string().trim().min(1, "Enter your name.").max(80, "Name is too long."),
+        email,
+        password: z.string().min(8, "Password must be at least 8 characters.").max(200, "Password is too long."),
+      })
+      .parse(Object.fromEntries(formData));
+    id = await createUser(f.name, f.email, f.password);
+  });
+  if (res.ok) {
+    await setSession(id);
+    redirect("/");
+  }
+  return res;
+}
+
+export async function signin(_: Result | null, formData: FormData): Promise<Result> {
+  let id = "";
+  const res = await run(async () => {
+    const f = z
+      .object({ email, password: z.string().min(1, "Enter your password.") })
+      .parse(Object.fromEntries(formData));
+    const uid = await verifyUser(f.email, f.password);
+    if (!uid) throw new docs.AppError("Wrong email or password.");
+    id = uid;
+  });
+  if (res.ok) {
+    await setSession(id);
+    redirect("/");
+  }
+  return res;
 }
 
 export async function logout() {

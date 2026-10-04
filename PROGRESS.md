@@ -12,7 +12,9 @@
 | 4 | Tests + build + walkthrough | ✅ Done | 6/6 tests vs Neon; tsc, eslint, build clean | Found and fixed two bugs (below) |
 | 5 | GitHub + Vercel + Neon | ✅ Done | Vercel logs | First deploy errored with `DATABASE_URL is not set` until the DB was connected and redeployed |
 | 6 | Docs | ✅ Done | — | README, PLAN, ARCHITECTURE, AI_WORKFLOW, SUBMISSION, PROGRESS |
-| — | Design pass | ✅ Done | Browser | Restyle only, from `SCREENS.md` / `PRODUCT.md` |
+| — | UI design (parallel track) | ✅ Done | Browser | Subagent → `SCREENS.md` → Claude Design → merged as restyle only |
+| — | Impeccable critique + fixes | ✅ Done | tsc, eslint, 6/6 tests | Critique in `.impeccable/critique/`; P1 fixes applied. Browser re-check pending |
+| — | Sign-up (email + password) | ✅ Done | 10/10 tests (`tests/users.test.ts`), tsc, eslint, build; browser: sign up, wrong password, duplicate email (any case), sign in | Scrypt hashing, no password reset yet. Seeded demo users remain one-click. 375px not re-checked (macOS min window width) |
 | 7 | Walkthrough video | ⏳ Pending | — | |
 | — | Live-site click-through | ⏳ Pending | — | |
 | — | Stretch: export to Markdown | ⛔ Skipped | — | Core, deploy and docs first |
@@ -45,6 +47,11 @@
 - [x] Switch user → Bob: doc under **Shared with me** with owner + role
 - [x] Bob opens doc: "View only" badge, no toolbar, "Only the owner can change sharing."
 - [x] Bob opens a doc not shared with him → "Document not available"
+
+### Browser: editorial redesign and motion
+- [x] Dashboard, editor and login render in the editorial layout; title sits above the sheet; sticky toolbar still sticks
+- [x] Login tabs switch without moving the rest of the page
+- [x] Row loader plays when picking a demo user or opening a document; button-only loader on Share and remove
 
 ### Not verified
 - [ ] 375px layout in a real browser (macOS minimum window width); checked in code only (share panel stacks below `lg`)
