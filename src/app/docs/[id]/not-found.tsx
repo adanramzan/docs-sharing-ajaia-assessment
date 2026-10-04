@@ -3,7 +3,7 @@ import { btnPrimary, Dot, Masthead } from "../../ui";
 
 export default function NotFound() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 pt-5 pb-20 sm:px-6">
+    <main className="mx-auto w-full max-w-[96rem] px-4 pt-5 pb-20 sm:px-6 lg:px-10">
       <Masthead>
         <span />
       </Masthead>

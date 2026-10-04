@@ -20,7 +20,7 @@ A lightweight collaborative document editor: create, format, import, and share d
 
 - Create, rename, edit, and autosave documents (debounced; status shown next to the title)
 - Rich text: bold, italic, underline, H1–H3, bulleted & numbered lists, undo/redo (toolbar + keyboard shortcuts)
-- **File import:** `.txt`, `.md`, `.docx` (max 4MB) → new editable document. Other types are rejected with a clear message.
+- **File import:** `.txt`, `.md`, `.docx` (max 4MB) → new editable document. Keeps headings (H1–H6), bold/italic/strikethrough, links, lists and task lists, quotes, code, tables and images. Other types are rejected with a clear message.
 - **Sharing:** owner shares by email with a role (viewer / editor), can change or remove access, and can delete the doc. Dashboard separates *My documents* from *Shared with me*.
 - Persistence in Postgres; formatting stored as HTML and re-validated by the editor schema on load.
 

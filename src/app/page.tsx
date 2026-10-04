@@ -17,7 +17,7 @@ export default async function Home() {
   const { owned, shared } = await listDocs(user.id);
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 pt-5 pb-20 sm:px-6">
+    <main className="mx-auto w-full max-w-[96rem] px-4 pt-5 pb-20 sm:px-6 lg:px-10">
       <Masthead>
         <form action={logout} className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <span>
@@ -42,7 +42,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <div className="grid gap-12 sm:gap-16">
+      <div className="grid gap-12 sm:gap-16 xl:grid-cols-2 xl:gap-x-12">
         <DocList title="My documents" docs={owned} empty="No documents yet. Create one or import a file." />
         <DocList title="Shared with me" docs={shared} empty="Nothing has been shared with you yet." />
       </div>
@@ -78,9 +78,10 @@ function DocList({ title, docs, empty }: { title: string; docs: DocSummary[]; em
                 <span className="truncate text-[17px] transition-transform duration-200 group-hover:translate-x-1.5 font-bold tracking-[-.01em] sm:text-lg">{d.title}</span>
                 <span className="flex items-center gap-3 text-xs whitespace-nowrap text-neutral-700 tabular-nums">
                   {d.role !== "owner" && (
-                    <RolePill role={d.role}>
-                      {d.owner_name} · {d.role}
-                    </RolePill>
+                    <>
+                      <span className="hidden sm:inline">Owner: {d.owner_name}</span>
+                      <RolePill role={d.role}>{d.role === "editor" ? "Can edit" : "Can view"}</RolePill>
+                    </>
                   )}
                   <span className="hidden sm:inline">{stamp(d.updated_at)}</span>
                   {d.role === "owner" && <span className="sm:hidden">{day(d.updated_at)}</span>}

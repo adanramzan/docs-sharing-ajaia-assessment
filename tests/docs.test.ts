@@ -1,5 +1,6 @@
 // Exercises the real SQL against the app's Postgres (DATABASE_URL from .env.local):
 // ownership, sharing, roles, import. Creates its own document and deletes it afterwards.
+import { readFileSync } from "node:fs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import * as docs from "../src/lib/docs";
 import { fileToHtml } from "../src/lib/import";
@@ -48,6 +49,13 @@ describe("file import", () => {
     expect((await fileToHtml("notes.md", Buffer.from("# Title\n\n- a"))).html).toMatch(/<h1>Title<\/h1>[\s\S]*<li>a<\/li>/);
     const txt = await fileToHtml("raw.txt", Buffer.from("<script>x</script>\n\nline2"));
     expect(txt).toEqual({ title: "raw", html: "<p>&lt;script&gt;x&lt;/script&gt;</p><p>line2</p>" });
+  });
+
+  it("keeps GFM tables and task lists in a shape the editor can load", async () => {
+    const { html } = await fileToHtml("all.md", readFileSync("tests/fixtures/all-formatting.md"));
+    expect(html).toMatch(/<table>[\s\S]*<td>Tables render<\/td>/);
+    expect(html).toContain('<ul data-type="taskList"><li data-type="taskItem" data-checked="true">Done task</li>');
+    expect(html).toContain('data-checked="false">Open task');
   });
 
   it("rejects unsupported or empty files", async () => {

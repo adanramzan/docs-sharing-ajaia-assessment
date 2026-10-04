@@ -1,11 +1,24 @@
 // Turns an uploaded file into editor HTML. The editor's schema drops any tag it
 // doesn't support when loading, so unknown/unsafe markup never reaches the page.
 import mammoth from "mammoth";
-import { marked } from "marked";
+import { Marked } from "marked";
 import { AppError } from "./docs";
 
 export const ACCEPTED = [".txt", ".md", ".docx"];
 export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
+// GFM task lists ("- [x] done") → the markup Tiptap's TaskList/TaskItem parse; other lists render as usual.
+const marked = new Marked({
+  renderer: {
+    list(token) {
+      if (!token.items.some((i) => i.task)) return false;
+      const items = token.items.map(
+        (i) => `<li data-type="taskItem" data-checked="${!!i.checked}">${this.parser.parse(i.tokens.filter((t) => t.type !== "checkbox"))}</li>`,
+      );
+      return `<ul data-type="taskList">${items.join("")}</ul>`;
+    },
+  },
+});
 
 const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 

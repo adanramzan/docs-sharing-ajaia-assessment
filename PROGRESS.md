@@ -15,6 +15,7 @@
 | — | UI design (parallel track) | ✅ Done | Browser | Subagent → `SCREENS.md` → Claude Design → merged as restyle only |
 | — | Impeccable critique + fixes | ✅ Done | tsc, eslint, 6/6 tests | Critique in `.impeccable/critique/`; P1 fixes applied. Browser re-check pending |
 | — | Sign-up (email + password) | ✅ Done | 10/10 tests (`tests/users.test.ts`), tsc, eslint, build; browser: sign up, wrong password, duplicate email (any case), sign in | Scrypt hashing, no password reset yet. Seeded demo users remain one-click. 375px not re-checked (macOS min window width) |
+| — | Import fidelity: tables, task lists, links, images, H4–H6 | ✅ Done | Unit test with `tests/fixtures/all-formatting.md`; browser import of the fixture and `PLAN.md` | Found by user: Markdown tables were flattened into one paragraph. Added Tiptap table/task-list/image extensions, re-enabled links |
 | 7 | Walkthrough video | ⏳ Pending | — | |
 | — | Live-site click-through | ⏳ Pending | — | |
 | — | Stretch: export to Markdown | ⛔ Skipped | — | Core, deploy and docs first |

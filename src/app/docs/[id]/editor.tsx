@@ -4,6 +4,8 @@ import { EditorContent, useEditor, type Editor as TiptapEditor } from "@tiptap/r
 import StarterKit from "@tiptap/starter-kit";
 import { Placeholder } from "@tiptap/extensions";
 import { TableKit } from "@tiptap/extension-table";
+import { TaskItem, TaskList } from "@tiptap/extension-list";
+import Image from "@tiptap/extension-image";
 import { saveDocument } from "../../actions";
 
 type Status = "saved" | "unsaved" | "saving" | { error: string };
@@ -39,7 +41,15 @@ export function Editor(props: { docId: string; initialTitle: string; initialCont
   }
 
   const editor = useEditor({
-    extensions: [StarterKit.configure({ link: false }), TableKit, ...(canEdit ? [Placeholder.configure({ placeholder: "Start writing…" })] : [])],
+    // Covers everything the importers emit: Markdown/.docx tables, task lists, links, images (.docx embeds them as data URIs).
+    extensions: [
+      StarterKit.configure({ link: { openOnClick: false } }),
+      TableKit,
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Image.configure({ allowBase64: true }),
+      ...(canEdit ? [Placeholder.configure({ placeholder: "Start writing…" })] : []),
+    ],
     content: props.initialContent,
     editable: canEdit,
     immediatelyRender: false,
