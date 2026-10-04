@@ -1,5 +1,5 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import type { Share } from "@/lib/docs";
 import { deleteDocument, shareDocument, unshareDocument } from "../../actions";
 import { SubmitButton } from "../../submit-button";
@@ -7,10 +7,38 @@ import { btnPrimary, input, linkDanger, RolePill } from "../../ui";
 
 const row = "flex items-center justify-between gap-2 border-b border-divider py-2";
 
+function RemoveButton({ docId, share }: { docId: string; share: Share }) {
+  const [pending, start] = useTransition();
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  return (
+    <>
+      <button
+        disabled={pending}
+        onClick={() =>
+          start(async () => {
+            setMsg(null);
+            const r = await unshareDocument(docId, share.user_id);
+            setMsg(r.ok ? { ok: true, text: `Removed ${share.name}.` } : { ok: false, text: r.error });
+          })
+        }
+        className={linkDanger}
+        aria-label={`Remove ${share.name}`}
+      >
+        {pending ? "Removing…" : "remove"}
+      </button>
+      {msg?.ok && <span role="status" className="sr-only">{msg.text}</span>}
+      {msg && !msg.ok && <span role="alert" className="text-xs font-semibold text-danger">{msg.text}</span>}
+    </>
+  );
+}
+
 export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: string; shares: Share[]; userEmails: string[] }) {
   const { docId, isOwner, shares } = props;
   const [state, action, pending] = useActionState(shareDocument.bind(null, docId), null);
 
+  const showErr = !pending && state && !state.ok;
+  // Hide "Shared." once that person has been removed again.
+  const showOk = !pending && state?.ok && shares.some((s) => s.email.toLowerCase() === state.email.trim().toLowerCase());
   return (
     <aside className="flex h-fit flex-col gap-4 border border-divider bg-neutral-100 p-4 text-sm">
       <h2 className="text-base">Sharing</h2>
@@ -27,13 +55,7 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
             <span className="flex items-center gap-2.5">
               <RolePill role={s.role} />
               {isOwner && (
-                <button
-                  onClick={() => unshareDocument(docId, s.user_id)}
-                  className={linkDanger}
-                  aria-label={`Remove ${s.name}`}
-                >
-                  remove
-                </button>
+                <RemoveButton docId={docId} share={s} />
               )}
             </span>
           </li>
@@ -41,7 +63,7 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
       </ul>
 
       {isOwner ? (
-        <form action={action} className="flex flex-col gap-2 border-t-2 border-divider pt-4">
+        <form key={state ? (state.ok ? "ok" : state.email) : "new"} action={action} className="flex flex-col gap-2 pt-4">
           <label className="text-xs font-semibold text-neutral-800" htmlFor="share-email">
             Share with (email)
           </label>
@@ -52,8 +74,9 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
             required
             list="seeded-emails"
             placeholder="bob@ajaia.test"
-            aria-invalid={state ? !state.ok : undefined}
-            aria-describedby={state && !state.ok ? "share-error" : undefined}
+            defaultValue={state && !state.ok ? state.email : ""}
+            aria-invalid={showErr || undefined}
+            aria-describedby={showErr ? "share-error" : undefined}
             className={input}
           />
           <datalist id="seeded-emails">
@@ -62,7 +85,7 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
             ))}
           </datalist>
           <div className="flex gap-2">
-            <select name="role" className={`${input} flex-1`} defaultValue="editor">
+            <select name="role" aria-label="Permission" className={`${input} flex-1`} defaultValue={state?.role ?? "editor"}>
               <option value="editor">Can edit</option>
               <option value="viewer">Can view</option>
             </select>
@@ -70,15 +93,15 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
               Share
             </button>
           </div>
-          {state && !state.ok && (
-            <p id="share-error" role="alert" className="font-semibold text-accent-700">
+          {showErr && (
+            <p id="share-error" role="alert" className="font-semibold text-danger">
               {state.error}
             </p>
           )}
-          {state?.ok && <p role="status" className="font-semibold text-success">Shared.</p>}
+          {showOk && <p role="status" className="font-semibold text-success">Shared.</p>}
         </form>
       ) : (
-        <p className="border-t-2 border-divider pt-4 text-[13px] text-neutral-700">Only the owner can change sharing.</p>
+        <p className="pt-4 text-[13px] text-neutral-700">Only the owner can change sharing.</p>
       )}
 
       {isOwner && (

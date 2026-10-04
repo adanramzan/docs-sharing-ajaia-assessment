@@ -74,18 +74,25 @@ export async function deleteDocument(docId: string) {
   redirect("/");
 }
 
-export async function shareDocument(docId: string, _: Result | null, formData: FormData): Promise<Result> {
+export type ShareResult = Result & { email: string; role: string };
+
+export async function shareDocument(docId: string, _: ShareResult | null, formData: FormData): Promise<ShareResult> {
   const user = await requireUser();
-  return run(async () => {
-    const email = z.email("Enter a valid email.").parse(String(formData.get("email") ?? "").trim());
-    const role = z.enum(["viewer", "editor"]).parse(formData.get("role"));
-    await docs.shareDoc(user.id, docId, email, role);
+  const email = String(formData.get("email") ?? "").trim();
+  const role = String(formData.get("role") ?? "editor");
+  const res = await run(async () => {
+    const e = z.email("Enter a valid email.").parse(email);
+    const r = z.enum(["viewer", "editor"]).parse(role);
+    await docs.shareDoc(user.id, docId, e, r);
     revalidatePath(`/docs/${docId}`);
   });
+  return { ...res, email, role };
 }
 
-export async function unshareDocument(docId: string, targetUserId: string) {
+export async function unshareDocument(docId: string, targetUserId: string): Promise<Result> {
   const user = await requireUser();
-  await docs.unshareDoc(user.id, docId, targetUserId);
-  revalidatePath(`/docs/${docId}`);
+  return run(async () => {
+    await docs.unshareDoc(user.id, docId, targetUserId);
+    revalidatePath(`/docs/${docId}`);
+  });
 }
