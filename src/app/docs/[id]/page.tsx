@@ -16,13 +16,13 @@ export default async function DocPage({ params }: PageProps<"/docs/[id]">) {
   const shares = await listShares(user.id, id);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-6">
-      <nav className="mb-4 flex items-center justify-between text-sm text-gray-600">
-        <Link href="/" className="hover:underline">
+    <main className="mx-auto w-full max-w-6xl px-4 pt-4 pb-8 sm:pt-6">
+      <nav className="mb-4 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b-2 border-divider pb-3 text-sm sm:mb-6">
+        <Link href="/" className="font-semibold hover:text-accent-700 hover:underline">
           ← All documents
         </Link>
-        <span>
-          Signed in as {user.name} · <span className="font-medium">{doc.role}</span>
+        <span className="text-neutral-800">
+          Signed in as {user.name} · <strong className="text-text">{doc.role}</strong>
           {doc.role !== "owner" && <> · owned by {doc.owner_name}</>}
         </span>
       </nav>

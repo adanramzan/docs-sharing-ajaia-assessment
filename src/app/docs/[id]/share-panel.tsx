@@ -2,30 +2,33 @@
 import { useActionState } from "react";
 import type { Share } from "@/lib/docs";
 import { deleteDocument, shareDocument, unshareDocument } from "../../actions";
+import { btnPrimary, input, linkDanger, RolePill } from "../../ui";
+
+const row = "flex items-center justify-between gap-2 border-b border-divider py-2";
 
 export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: string; shares: Share[]; userEmails: string[] }) {
   const { docId, isOwner, shares } = props;
   const [state, action, pending] = useActionState(shareDocument.bind(null, docId), null);
 
   return (
-    <aside className="h-fit space-y-4 rounded border bg-white p-4 text-sm">
-      <h2 className="font-semibold">Sharing</h2>
-      <ul className="space-y-2">
-        <li className="flex justify-between">
+    <aside className="flex h-fit flex-col gap-4 border border-divider bg-neutral-100 p-4 text-sm">
+      <h2 className="text-base">Sharing</h2>
+      <ul className="border-t-2 border-divider">
+        <li className={row}>
           <span>{props.ownerName}</span>
-          <span className="text-gray-500">owner</span>
+          <RolePill role="owner" />
         </li>
         {shares.map((s) => (
-          <li key={s.user_id} className="flex items-center justify-between gap-2">
+          <li key={s.user_id} className={row}>
             <span className="truncate" title={s.email}>
               {s.name}
             </span>
-            <span className="flex items-center gap-2 text-gray-500">
-              {s.role}
+            <span className="flex items-center gap-2.5">
+              <RolePill role={s.role} />
               {isOwner && (
                 <button
                   onClick={() => unshareDocument(docId, s.user_id)}
-                  className="text-red-600 hover:underline"
+                  className={linkDanger}
                   aria-label={`Remove ${s.name}`}
                 >
                   remove
@@ -37,8 +40,8 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
       </ul>
 
       {isOwner ? (
-        <form action={action} className="space-y-2 border-t pt-4">
-          <label className="block text-xs font-medium text-gray-600" htmlFor="share-email">
+        <form action={action} className="flex flex-col gap-2 border-t-2 border-divider pt-4">
+          <label className="text-xs font-semibold text-neutral-800" htmlFor="share-email">
             Share with (email)
           </label>
           <input
@@ -48,7 +51,9 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
             required
             list="seeded-emails"
             placeholder="bob@ajaia.test"
-            className="w-full rounded border px-2 py-1.5"
+            aria-invalid={state ? !state.ok : undefined}
+            aria-describedby={state && !state.ok ? "share-error" : undefined}
+            className={input}
           />
           <datalist id="seeded-emails">
             {props.userEmails.map((e) => (
@@ -56,28 +61,32 @@ export function SharePanel(props: { docId: string; isOwner: boolean; ownerName: 
             ))}
           </datalist>
           <div className="flex gap-2">
-            <select name="role" className="flex-1 rounded border px-2 py-1.5" defaultValue="editor">
+            <select name="role" className={`${input} flex-1`} defaultValue="editor">
               <option value="editor">Can edit</option>
               <option value="viewer">Can view</option>
             </select>
-            <button disabled={pending} className="rounded bg-blue-600 px-3 py-1.5 text-white disabled:opacity-50">
+            <button disabled={pending} className={`${btnPrimary} py-2`}>
               Share
             </button>
           </div>
-          {state && !state.ok && <p className="text-red-600">{state.error}</p>}
-          {state?.ok && <p className="text-green-700">Shared.</p>}
+          {state && !state.ok && (
+            <p id="share-error" role="alert" className="font-semibold text-accent-700">
+              {state.error}
+            </p>
+          )}
+          {state?.ok && <p role="status" className="font-semibold text-success">Shared.</p>}
         </form>
       ) : (
-        <p className="border-t pt-4 text-xs text-gray-500">Only the owner can change sharing.</p>
+        <p className="border-t-2 border-divider pt-4 text-[13px] text-neutral-700">Only the owner can change sharing.</p>
       )}
 
       {isOwner && (
         <form
           action={deleteDocument.bind(null, docId)}
           onSubmit={(e) => !confirm("Delete this document for everyone?") && e.preventDefault()}
-          className="border-t pt-4"
+          className="border-t-2 border-divider pt-4"
         >
-          <button className="text-xs text-red-600 hover:underline">Delete document</button>
+          <button className={linkDanger}>Delete document</button>
         </form>
       )}
     </aside>
