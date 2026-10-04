@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["@electric-sql/pglite", "pg"],
+  experimental: {
+    // Vercel caps request bodies at 4.5MB; uploads are limited to 4MB in the app.
+    serverActions: { bodySizeLimit: "4.4mb" },
+  },
 };
 
 export default nextConfig;

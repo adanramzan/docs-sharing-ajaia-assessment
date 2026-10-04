@@ -1,69 +1,87 @@
-import Image from "next/image";
+import Link from "next/link";
+import { currentUser } from "@/lib/auth";
+import { SEED_USERS } from "@/lib/db";
+import { listDocs, type DocSummary } from "@/lib/docs";
+import { createDocument, login, logout } from "./actions";
+import { UploadForm } from "./upload-form";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const user = await currentUser();
+  if (!user) return <Login />;
+  const { owned, shared } = await listDocs(user.id);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="mx-auto w-full max-w-4xl px-4 py-8">
+      <header className="mb-8 flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">Ajaia Docs</h1>
+        <form action={logout} className="flex items-center gap-3 text-sm text-gray-600">
+          <span>
+            {user.name} <span className="text-gray-400">({user.email})</span>
+          </span>
+          <button className="rounded border px-2 py-1 hover:bg-gray-50">Switch user</button>
+        </form>
+      </header>
+
+      <section className="mb-10 flex flex-wrap items-start gap-4">
+        <form action={createDocument}>
+          <button className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700">+ New document</button>
+        </form>
+        <UploadForm />
+      </section>
+
+      <DocList title="My documents" docs={owned} empty="No documents yet. Create one or import a file." />
+      <DocList title="Shared with me" docs={shared} empty="Nothing has been shared with you yet." />
+    </main>
+  );
+}
+
+function DocList({ title, docs, empty }: { title: string; docs: DocSummary[]; empty: string }) {
+  return (
+    <section className="mb-10">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">{title}</h2>
+      {docs.length === 0 ? (
+        <p className="rounded border border-dashed p-6 text-center text-sm text-gray-500">{empty}</p>
+      ) : (
+        <ul className="divide-y rounded border">
+          {docs.map((d) => (
+            <li key={d.id}>
+              <Link href={`/docs/${d.id}`} className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50">
+                <span className="truncate font-medium">{d.title}</span>
+                <span className="shrink-0 text-xs text-gray-500">
+                  {d.role !== "owner" && (
+                    <span className="mr-2 rounded bg-gray-100 px-1.5 py-0.5">
+                      {d.owner_name} · {d.role}
+                    </span>
+                  )}
+                  {new Date(d.updated_at).toLocaleString()}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function Login() {
+  return (
+    <main className="mx-auto w-full max-w-sm px-4 py-24">
+      <h1 className="mb-2 text-2xl font-semibold">Ajaia Docs</h1>
+      <p className="mb-6 text-sm text-gray-600">Demo login: pick a seeded account. Use two accounts to try sharing.</p>
+      <div className="space-y-2">
+        {SEED_USERS.map((u) => (
+          <form key={u.id} action={login}>
+            <input type="hidden" name="userId" value={u.id} />
+            <button className="w-full rounded border px-4 py-3 text-left hover:bg-gray-50">
+              <span className="font-medium">{u.name}</span>
+              <span className="block text-xs text-gray-500">{u.email}</span>
+            </button>
+          </form>
+        ))}
+      </div>
+    </main>
   );
 }
