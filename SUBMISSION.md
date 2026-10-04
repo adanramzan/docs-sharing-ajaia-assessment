@@ -58,4 +58,3 @@ No screenshots included: the live URL needs no setup.
 
 - Use two browser profiles (or Switch user) to see both sides of sharing.
 - The live demo uses one shared database, so documents created by other reviewers may appear under the seeded accounts.
-- If a page looks stale after switching users, refresh: auth is a simple cookie, by design.
