@@ -45,9 +45,14 @@ Tests create a `[test]` document as Alice and delete it when they finish.
 
 ## Deploy (Vercel)
 
-1. Import the GitHub repo in Vercel (defaults are fine).
-2. Project → Storage → Create → Postgres (Neon, free). This sets `DATABASE_URL`.
-3. Redeploy. Schema + seed users are created on first request.
+Import the repo in Vercel, add a Neon database from the Storage tab (sets `DATABASE_URL`), redeploy. Exact settings: [`docs/DEPLOY.md`](./docs/DEPLOY.md).
+
+## Caveats
+
+- **Mocked auth:** anyone can pick any seeded account. Fine for a demo, not for real use.
+- **Last write wins:** two people editing the same doc at once can overwrite each other. No real-time sync.
+- **Shared database:** the live demo and local dev use the same Neon database, so you may see documents other reviewers created.
+- **`.docx` import** keeps text, bold/italic, and Word heading/list *styles*; manually formatted text (e.g. big bold font instead of "Heading 1") comes through as plain paragraphs.
 
 ## Project layout
 
@@ -62,4 +67,14 @@ src/app/docs/[id]/   Editor (Tiptap), sharing panel
 tests/docs.test.ts   Automated tests
 ```
 
-See `PLAN.md` (kickoff plan and what changed), `ARCHITECTURE.md` (decisions) and `AI_WORKFLOW.md` (process).
+## Documents
+
+| File | What it covers |
+|---|---|
+| [`PLAN.md`](./PLAN.md) | Kickoff plan: scope, stack, data/access model, milestones, plan vs. actual |
+| [`PROGRESS.md`](./PROGRESS.md) | Milestone status, test log, bugs found during testing |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | What was prioritized and why, key decisions, next steps |
+| [`AI_WORKFLOW.md`](./AI_WORKFLOW.md) | AI tools used, what was changed or rejected, how it was verified |
+| [`SUBMISSION.md`](./SUBMISSION.md) | What's included, status, test accounts |
+| [`docs/DEPLOY.md`](./docs/DEPLOY.md) | Exact Vercel + Neon setup |
+| [`ASSIGNMENT.md`](./ASSIGNMENT.md), [`PRODUCT.md`](./PRODUCT.md), [`SCREENS.md`](./SCREENS.md) | Requirements checklist, product context, screen brief for the design pass |

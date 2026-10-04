@@ -22,6 +22,9 @@
 | `tests/docs.test.ts` | 6 automated tests: access control, sharing roles, file import |
 | `README.md` | Local setup, run, test, deploy instructions |
 | `PLAN.md` | Build plan from kickoff: scope, stack, data/access model, milestones, plan vs. actual |
+| `PROGRESS.md` | Milestone status, manual + automated test log, bugs found |
+| `docs/DEPLOY.md` | Exact Vercel + Neon setup |
+| `CLAUDE.md` | Guardrails given to AI agents working in the repo |
 | `ARCHITECTURE.md` | Architecture note: priorities, decisions, tradeoffs, next steps |
 | `AI_WORKFLOW.md` | AI workflow note: tools, speed-ups, what was changed/rejected, verification |
 | `SUBMISSION.md` | This file |
@@ -50,3 +53,9 @@ No screenshots included: the live URL needs no setup.
 2. Real auth (Auth.js magic link) replacing the user picker
 3. Version history with restore
 4. Export to Markdown/PDF; Playwright test for the share → switch user → read-only flow
+
+## Notes for the reviewer
+
+- Use two browser profiles (or Switch user) to see both sides of sharing.
+- The live demo uses one shared database, so documents created by other reviewers may appear under the seeded accounts.
+- If a page looks stale after switching users, refresh: auth is a simple cookie, by design.
